@@ -87,6 +87,12 @@ cloning because it points to what is actively being worked on right now.
   Old file deleted. Added `chat_history/README.md` documenting
   folder convention. Workflow updated: new session = new transcript
   file under the model folder.
+- 2026-09-08 — Verified PAT permissions end-to-end. Read, write,
+  push, pull, workflow scope all work for ckmanuel/ai-memory.
+  Cannot create new repos (lacks Administration scope). Proved
+  PDF push/pull works: created test PDF, force-added (`git add -f`
+  overrides .gitignore), pushed at hash 0299bae, cloned fresh, PDF
+  landed with readable content, cleaned up at hash caafa48.
 
 ## Blockers / Waiting On
 _None yet._
