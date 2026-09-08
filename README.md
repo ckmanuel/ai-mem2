@@ -46,15 +46,15 @@ learned during the session is committed and pushed back so it persists.
 ### Installing the pre-commit hook on a fresh clone
 
 `.git/hooks/` is not version-controlled, so a fresh clone does not include
-the hook shim. After cloning:
+the hook shim. After cloning, run:
 
 ```sh
-cat > .git/hooks/pre-commit <<'EOF'
-#!/bin/sh
-exec python3 "$(git rev-parse --show-toplevel)/scripts/pre_commit_scan.py" "$@"
-EOF
-chmod +x .git/hooks/pre-commit
+./scripts/install_hooks.sh
 ```
 
-The script itself (`scripts/pre_commit_scan.py`) is version-controlled and
-travels with the repo.
+This creates `.git/hooks/pre-commit` and makes it executable. The scanner
+itself (`scripts/pre_commit_scan.py`) is version-controlled and travels
+with the repo. Re-running the install script is safe.
+
+Without this step, commits you make locally will not be scanned. The
+hook only protects clones where it has been explicitly installed.

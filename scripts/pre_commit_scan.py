@@ -47,7 +47,11 @@ PREFIX_PATTERNS = [
 # --- High-entropy string detection -----------------------------------------
 HIGH_ENTROPY_RE = re.compile(r"[A-Za-z0-9+/=_\-]{32,}")
 MIN_LEN = 32
-ENTROPY_THRESHOLD = 4.0  # bits per char; ~random base64 = 6.0, English ~3.0
+# 4.5 bits/char: random base64 ~6.0, JWT body ~5.5, GitHub PAT prefix
+# portion ~5.0, English text ~3.0, paths and config values ~3.5-4.0.
+# 4.0 was too aggressive (caught paths); 4.5 still catches unknown
+# random tokens while letting paths and English-ish strings through.
+ENTROPY_THRESHOLD = 4.5
 
 # False positives to skip (matched against the candidate string).
 FALSE_POSITIVES = [

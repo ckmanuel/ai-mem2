@@ -66,6 +66,12 @@ cloning because it points to what is actively being worked on right now.
 - 2026-09-08 — Clarified deliverable backup policy with user. Final
   decision: deliverables stay local-only by default, pushed to GitHub
   only when user explicitly asks. Logged decision, updated workflow.
+- 2026-09-08 — Second external critique. Three fixes: (1) added
+  `scripts/install_hooks.sh` for one-command hook install on fresh
+  clones; (2) raised entropy threshold from 4.0 to 4.5 bits/char
+  after re-testing four cases; (3) honestly logged that token
+  discipline remains partial — the two real fixes (PAT rotation,
+  env var) are user-side actions and still pending.
 
 ## Blockers / Waiting On
 _None yet._

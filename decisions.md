@@ -16,6 +16,33 @@ Entry template:
 - **Status:** active | superseded by <YYYY-MM-DD entry>
 -->
 
+## 2026-09-08 — External critique round 2: hook install, threshold, token discipline
+- **Context:** Second external critique. Three points: (1) hook isn't
+  installed on fresh clones because .git/hooks/ isn't version-controlled;
+  (2) token discipline still partial, two fixes deferred to user; (3)
+  entropy regex will false-positive on legitimate base64 and config.
+- **Decision:**
+  1. **Hook install:** Added `scripts/install_hooks.sh`. One-command
+     install. README updated to point at it as the primary install
+     method instead of copy-pasting a heredoc. Re-runs are safe.
+     Honest scope: hook only protects clones where it has been
+     explicitly installed. The workspace where the assistant commits
+     has the hook installed. Fresh clones on the user's machine do
+     not, until they run the install script.
+  2. **Token discipline:** Unchanged. Still partial. The two real
+     fixes (rotate PAT, move PAT out of prompt into env var) remain
+     user-side actions. Assistant cannot perform them. Will keep
+     flagging at natural checkpoints.
+  3. **Entropy threshold:** Raised from 4.0 to 4.5 bits/char. Re-tested
+     with four cases: github_pat_ prefix (blocked), random string at
+     5.37 entropy (blocked), filesystem path (passes), base64 blob with
+     `data:` prefix (passes). True positives still caught, the main
+     false positive class eliminated. Base64 without a breaking prefix
+     character will still false-positive; user can `--no-verify` past
+     those, and we extend FALSE_POSITIVES as patterns emerge.
+- **Status:** active — install script + threshold tuning implemented.
+  Token discipline still partial, awaiting user action.
+
 ## 2026-09-08 — Deliverables: only pushed when explicitly requested
 - **Context:** User asked whether deliverables (PDFs, DOCX, XLSX, PNGs)
   could live in git without bloating context. After clarification,
@@ -53,8 +80,9 @@ Entry template:
   ghu_, sk-ant-, sk-, AIza, AKIA, AGPA/AIDA/AROA/ANPA/AIPA/ASIA,
   xox[abp]-, glpat-, private key blocks, JWTs, and password=/api_key=
   /token= assignments. Also flags any string of length >= 32 with
-  Shannon entropy >= 4.0 bits/char. False positives filtered: md5,
-  sha1, sha256, uuids, version strings, urls. Tested with fake tokens
+  Shannon entropy >= 4.5 bits/char (raised from 4.0 after path false
+  positives). False positives filtered: md5, sha1, sha256, uuids,
+  version strings, urls, filesystem paths. Tested with fake tokens
   in both prefix and high-entropy categories — both blocked correctly.
 - **Bypass:** `git commit --no-verify` for confirmed false positives.
   Documented in hook output.
