@@ -5,9 +5,9 @@ the top. Do not edit or delete past entries — supersede them with a new entry
 if a decision is reversed.
 
 **Archive:** older decisions live in
-`archive/decisions-2026-09-08-session-1.md`. The most recent decisions
-stay here. To supersede an archived decision, write a new entry here
-and reference the archived one by title.
+`archive/decisions-<date-range>.md`. The most recent decisions stay
+here. To supersede an archived decision, write a new entry here and
+reference the archived one by title.
 
 <!--
 Entry template:
@@ -21,196 +21,97 @@ Entry template:
 - **Status:** active | superseded by <YYYY-MM-DD entry>
 -->
 
-## 2026-09-08 — CI size-check workflow: warn (don't block) on bloat
-- **Context:** User asked if archiving is automatic. Honest answer:
-  no. Documentation says when to trim, but nothing enforces it. The
-  next session has to notice bloat and decide to archive. Same
-  forcing problem as the transcript step.
-- **What automatic would actually look like:** a script that checks
-  sizes, archives older entries when threshold crossed. Two problems
-  with full automation: (1) the script has to pick a split point
-  using a heuristic that may not match judgment; (2) CI can flag but
-  can't fix (or has to commit back, which is fragile).
-- **Decision:** Added `.github/workflows/size-check.yml` as a CI
-  warning layer. Doesn't auto-trim, doesn't block push. Just a
-  visible reminder that appears on GitHub Actions status when files
-  cross thresholds. The assistant sees the warning in the next
-  session's CI status and knows to trim.
-- **Thresholds:** `decisions.md` 25KB or 400 lines or 20 top-level
-  entries. `context.md` 15KB or 250 lines or 5 Recently Completed
-  entries. `preferences.md` 12KB or 300 lines. `knowledge.md` 12KB
-  or 300 lines. `README.md` 12KB or 250 lines. Tunable in the
-  workflow file.
-- **First version had a bug:** the section-count check for
-  `decisions.md` returned 0 because the file's title is at line 1
-  (`# Key Decisions`), not `## Key Decisions`. Decisions are top-
-  level `## ` entries. Fixed by counting `## ` lines directly
-  (excluding the template entry inside the HTML comment block).
-  Split into two helpers: `check_section` for top-level `## `
-  entries, `check_list_section` for `- ` items under a section
-  header.
-- **Status:** active — workflow implemented and tested locally,
-  README updated.
+## Structural decisions (durable, applied from repo initialization)
 
-## 2026-09-08 — Lean trim: archive older decisions, cap context.md Recently Completed
-- **Context:** After 45 exchanges in one session, `decisions.md` had
-  grown to 498 lines (28KB) and `context.md` Recently Completed had
-  12 entries. Repository getting bloated. User asked for lean trim
-  before forking to a clean-slate repo, so the fork starts lean.
-- **Decision:**
-  1. **`decisions.md` trimmed.** Kept 5 most recent entries in
-     active file. Moved 13 older entries to
-     `archive/decisions-2026-09-08-session-1.md`. Archive pointer
-     added at top of active file. Full rationale preserved in
-     archive; only location changed.
-  2. **`context.md` Recently Completed capped at 5 entries.** Older
-     entries dropped (they're already in `decisions.md` and
-     `chat_history/`).
-  3. **`README.md` structure table** includes `archive/` row.
-  4. **Convention added:** when `decisions.md` crosses ~20 active
-     entries or 25KB, archive the oldest batch to
-     `archive/decisions-<date-range>.md`. Same for `context.md`
-     Recently Completed crossing 7 entries.
-- **Alternatives considered:** Leave as-is (rejected — bloat
-  degrades readability and clone speed over time); rewrite older
-  entries more tersely (rejected — destroys rationale, which is
-  the whole point of the log); delete older entries (rejected —
-  rationale should be preserved, just moved).
-- **Rationale:** Decision log grows linearly with session activity.
-  Without a trim mechanism, it becomes unreadable within a few
-  sessions. Archive preserves rationale; active file stays scannable
-  in under 2 minutes per the README convention.
-- **Status:** active — trim done, convention documented.
+These decisions define how the repo works. They were established in the
+parent repo (`ckmanuel/ai-memory`) and inherited by this fork. They
+are the architectural baseline, not session-specific choices.
 
-## 2026-09-08 — Add sync_before_work.sh for alternating-session safety
-- **Context:** User asked how to enforce "Session B must pull before
-  becoming active" in alternating-session setups. Existing workflow
-  doc mentioned pulling before push but didn't enforce pulling before
-  *editing*. Session B idle while Session A commits, then B becomes
-  active on stale state — risks push rejection and contradictory work.
-- **Decision:** Layer 1 + Layer 3 enforcement (Layer 2 redundant —
-  git's built-in rejection already catches this with worse messaging):
-  1. **`scripts/sync_before_work.sh`** — one-command pull + summarize.
-     Requires `GH_PAT` env var. Fetches latest, compares local HEAD
-     to `origin/main`, prints new commits + files changed since
-     local HEAD. Warns if any memory files were modified. Tested
-     with three scenarios: missing GH_PAT (clear error), behind
-     (pulls, lists 2 new commits + 2 changed files, prints ACTION
-     REQUIRED warning), up to date (clean message).
-  2. **`context.md` workflow step 1** now mandates running
-     `sync_before_work.sh` before any memory file edits if the
-     session has been idle or another session may have committed.
-  3. **`README.md` troubleshooting** adds "Alternating sessions —
-     stale state" entry pointing at the script.
-- **First version had two bugs:** (1) `git fetch` failed without
-  credentials because origin URL is clean HTTPS (PAT stripped for
-  security). (2) Error message said "merge conflict" when the real
-  failure was auth. Both fixed by requiring `GH_PAT` env var and
-  using the ephemeral credential helper pattern for fetch and pull.
-  Error reporting now distinguishes auth failures from rebase
-  conflicts.
-- **Status:** active — script implemented and tested, workflow
-  updated, README updated.
+### Three sources of truth, no overlap
+1. **`chat_history/<model>/<session_id>-<date>.md`** — verbatim
+   transcript. Authoritative record of what was said.
+2. **`decisions.md`** — durable decisions and rationale.
+   Append-only. Cross-session.
+3. **`context.md` Recently Completed** — short-term pointer list
+   for the most recent few sessions. Auto-rotates as items age out.
 
-## 2026-09-08 — Add knowledge.md; reject conversations/ from external guide
-- **Context:** User shared two external guides (CLAW blog tutorial at
-  claw.rommark.dev, persistent-memory guide at
-  persistent-memory-deploy.vercel.app). Asked to add whatever is
-  relevant.
-- **Assessment of guides:**
-  - **CLAW tutorial:** mostly reproduces what we have, with less
-    secure defaults. Recommends `git remote set-url origin
-    https://ghp_...@...` (embedding PAT in `.git/config` — we
-    rejected this in exchange 6 as a security hole). Recommends
-    `git add .` and generic commit messages (we pushed back on
-    this in exchange 6). Nothing new to adopt.
-  - **Persistent Memory guide:** opening prompt template is
-    essentially identical to what we use. File structure proposed:
-    `preferences.md`, `projects.md`, `conversations/`,
-    `knowledge.md`, `README.md`.
-- **Decision:**
-  - **Adopt:** `knowledge.md`. New file for facts the user shares
-    (domain expertise, stack, team, environment, conventions).
-    Previously we had no equivalent. Created with template sections.
-  - **Reject:** `conversations/` directory. We already removed
-    `sessions/` for the same redundancy reason.
-  - **Adopt:** troubleshooting section in README. Pulled the "be
-    explicit when asking agent to remember" note from the memory
-    guide.
-- **Memory file routing clarified in `context.md`:** Facts →
-  `knowledge.md`, Preferences → `preferences.md`, Decisions →
-  `decisions.md`, Current focus → `context.md`, Projects →
-  `projects.md`, Verbatim record → `chat_history/`.
-- **Status:** active — `knowledge.md` added, README updated,
-  troubleshooting section added, routing clarified.
+No parallel summary files. They drift.
 
-## 2026-09-08 — Drop sessions/ directory; supersede "keep both" decision
-- **Context:** Fifth external critique identified `sessions/`
-  (summaries) as structural redundancy with `chat_history/`
-  (verbatim transcripts). Two sources of truth for the same
-  conversation. The original critique (exchange 8) flagged this
-  same overlap; the decision at the time was "keep both, accept
-  drift risk." Fifth critique correctly challenged that decision.
-- **Decision:** Drop `sessions/` entirely. Three sources of truth
-  remain, each with a distinct role:
-  1. **`chat_history/<model>/<session_id>-<date>.md`** — verbatim
-     transcript. Authoritative record of what was said.
-  2. **`decisions.md`** — durable decisions and rationale.
-     Append-only. Cross-session.
-  3. **`context.md` Recently Completed** — short-term pointer list
-     for the most recent few sessions. Auto-rotates as items age
-     out.
-- **Supersedes:** the original "keep both, accept drift" decision
-  from the chat_history/sessions overlap discussion (exchange 8).
-  That decision was wrong. Maintenance burden wasn't worth the
-  convenience. Drift was inevitable. Two summaries of the same
-  content (`sessions/*.md` AND `context.md` Recently Completed)
-  was duplication, not defense-in-depth.
-- **Rationale:** Three sources, three roles, no overlap. Faster
-  scanning is sacrificed at the loss of compact summaries, but
-  the trade is worth it. Scanning the verbatim transcript is
-  slower than scanning a summary, but the transcript is
-  authoritative. The summary was a derivative that lagged and
-  sometimes lied.
-- **Migration:** `git rm -r sessions/`. Six summary files deleted.
-  Their content was already encoded in `context.md` Recently
-  Completed and `decisions.md`. No information lost.
-- **Status:** active — `sessions/` removed, workflow updated,
-  README updated.
+### Memory file routing — where new info goes
+- **Facts** (domain, stack, team, environment) → `knowledge.md`
+- **Preferences** (stable rules for how the assistant should behave) → `preferences.md`
+- **Decisions** (durable choices with rationale) → `decisions.md`
+- **Current focus** (what's being worked on right now) → `context.md`
+- **Projects** (active/past work with status) → `projects.md`
+- **Verbatim record** (what was said) → `chat_history/`
 
-## 2026-09-08 — new_session.sh auto-generation + honest forcing-status logging
-- **Context:** Fifth critique (exchange 30). Critic pointed out that
-  `new_session.sh` required a session_id that IM gateway metadata
-  provides, but Claude.ai and other chat providers don't. Without
-  that metadata, the script either failed or got a made-up
-  placeholder. Critic honestly logged it as an open item rather
-  than claiming it was solved.
-- **Two issues separated:**
-  - **Issue 1 (fixable): script requires session_id that may not
-    exist.** FIXED. All args to `new_session.sh` are now optional.
-    If session_id is empty, the script auto-generates
-    `auto-<unix_timestamp>-<random6>`. If date is empty, uses today.
-    Tested with four scenarios (no args, explicit session_id only,
-    all explicit Claude, existing file).
-  - **Issue 2 (not truly fixable): nothing forces the assistant to
-    run the script.** OPEN, HONESTLY LOGGED. The opening prompt,
-    FIRST ACTION block, and the script all make it easier and more
-    prominent. None of them make it impossible to skip. LLMs are
-    non-deterministic. Added CI check at
-    `.github/workflows/transcript-check.yml` that flags pushes
-    which don't modify a transcript file. This makes the failure
-    visible rather than silent, but it's after the fact — the
-    session is already over by the time CI runs.
-- **Why three layers still aren't "forcing":**
-  - Opening prompt: strongest signal, but users may abbreviate.
-  - context.md FIRST ACTION block: reinforces after clone, but the
-    assistant has to actually read it.
-  - Script: makes execution one command, but the assistant has to
-    decide to run it.
-  - CI check: catches the failure after push, can't prevent it.
-  - This is the honest state. No system can truly force an LLM
-    to take an action before its first response. The best we can
-    do is make skipping hard to do accidentally, and make skips
-    visible when they happen.
-- **Status:** active. Issue 1 fixed. Issue 2 openly logged as
-  partially mitigated but not solved.
+### Token discipline: prevention over damage control
+- The PAT must never be committed. Pre-commit hook
+  (`scripts/pre_commit_scan.py`) scans for known token prefixes and
+  high-entropy strings, blocks commits that contain suspected secrets.
+- CI backstop (`.github/workflows/secret-scan.yml`) runs the scanner
+  on every push. Catches leaks that slip past a missing local hook.
+- Bypass with `git commit --no-verify` only for confirmed false
+  positives. Document the bypass in the commit message.
+- **Recommended user-side action:** store the PAT in an env var
+  (`export GH_PAT=...` in shell rc file) and reference it as
+  `$GH_PAT` in the opening prompt. The chat never sees the token.
+  Exposure window collapses to zero regardless of session length.
+  PAT rotation is damage control; env var is prevention. Both have
+  value. They are not equivalent.
+
+### Local pre-commit hook: install gap is real
+- `.git/hooks/` is not version-controlled. A fresh clone does not
+  have the hook until `./scripts/install_hooks.sh` is run.
+- Git deliberately does not allow repos to ship executable hooks —
+  security feature, not bug.
+- Run `./scripts/install_hooks.sh` once after cloning. Re-runs are
+  safe. Until this runs, local commits will not be scanned.
+
+### Transcript creation: 3-layer enforcement, no true forcing
+1. **`scripts/new_session.sh`** — one-command transcript bootstrap.
+   All args optional. Auto-generates `auto-<timestamp>-<random6>`
+   session_id when IM gateway metadata is unavailable (Claude.ai,
+   ChatGPT, etc.).
+2. **`context.md` FIRST ACTION block** — bold warning at the top.
+3. **Recommended opening prompt in `README.md`** — paste-able
+   template.
+4. **`.github/workflows/transcript-check.yml`** — CI backstop that
+   flags pushes which don't modify a transcript file.
+
+Honest limitation: nothing in the system *forces* the assistant to
+run `new_session.sh`. The opening prompt, FIRST ACTION block, script,
+and CI check all make it easier and more prominent. None of them make
+it impossible to skip. LLMs are non-deterministic. The best we can do
+is make skipping hard to do accidentally, and make skips visible when
+they happen.
+
+### Alternating sessions: pull before becoming active
+If running two sessions on the same repo (Session A finishes, then B
+becomes active), B must pull latest before editing. Run
+`GH_PAT=$GH_PAT ./scripts/sync_before_work.sh` first. The script
+fetches, prints what changed, and warns if any memory files were
+modified by the other session. Re-read those files before editing.
+
+True parallel (concurrent edits from two sessions) is risky — push
+rejections on every commit, merge conflicts on shared memory files.
+Alternating with handoff is the practical pattern.
+
+### Deliverables: local-only by default
+PDFs, DOCX, XLSX, PNGs, and other binaries stay in
+`/home/z/my-project/download/` outside git. `.gitignore` excludes
+them. Push a specific deliverable to GitHub only when the user
+explicitly asks ("push X", "back up X to GitHub"). Use
+`git add -f <file>` to override `.gitignore`.
+
+Reasoning: every push of a binary stores a new copy in git history.
+10MB PDF updated 10 times = 100MB in history. Clone times degrade.
+One-off PDFs are fine. Routine large-file backup should use Git LFS
+or a separate repo.
+
+### Trim when bloated
+When `decisions.md` crosses ~20 active entries or 25KB, archive the
+oldest batch to `archive/decisions-<date-range>.md`. Same for
+`context.md` Recently Completed at 7 entries. CI size-check workflow
+(`size-check.yml`) warns when thresholds are crossed. Doesn't
+auto-trim, doesn't block push. Just makes bloat visible.

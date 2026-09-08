@@ -1,6 +1,8 @@
-# ai-memory
+# ai-mem2
 
-Persistent long-term memory for cross-session chat with AI Agents.
+Clean-slate persistent memory for cross-session chat with AI Agents.
+Forked from `ckmanuel/ai-memory` with session-1 transcripts and decision
+log archived. Structure, scripts, and conventions inherited.
 
 ## Purpose
 
@@ -92,7 +94,7 @@ If the chat provider gives you IM gateway metadata with a session_id
 I want you to use my private GitHub repository as persistent memory
 across chat sessions.
 
-GitHub repository: https://github.com/ckmanuel/ai-memory.git
+GitHub repository: https://github.com/ckmanuel/ai-mem2.git
 GitHub Personal Access Token: <paste token, or "use $GH_PAT env var">
 
 At the beginning of this session:
@@ -137,7 +139,7 @@ has `Contents: Read and write` (and `Workflows` scope if pushing
 workflow files). If expired, generate a new one and update the env var
 or paste it in the next session's opening prompt.
 
-**Repository not found.** Verify the URL is `ckmanuel/ai-memory.git`
+**Repository not found.** Verify the URL is `ckmanuel/ai-mem2.git`
 and the PAT has access to that specific repo. Fine-grained PATs are
 scoped to specific repos — a PAT for one repo won't work on another.
 

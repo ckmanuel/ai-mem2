@@ -32,15 +32,8 @@ modify a transcript file, but that's after the fact — it makes the
 failure visible, not prevented.
 
 ## Current Focus
-- Memory + workspace + transcript setup is complete.
-- Voice and style rules (including the no-manufactured-criticism rule)
-  are active and stored in `preferences.md`.
-- Git sync protocol is scoped: commit only inside `ai-memory/`, only
-  after meaningful work, descriptive messages, token via env var.
-- New session workflow is enforced via `scripts/new_session.sh` +
-  this `FIRST ACTION` block + the recommended opening prompt in
-  `README.md`. See `decisions.md` for the full chain.
-- Awaiting the user's first real task.
+- Fresh repo. No prior session work to continue.
+- Awaiting the user's first task.
 
 ## Workflow (every meaningful unit of work)
 1. **If your session has been idle or another session may have
@@ -56,7 +49,7 @@ failure visible, not prevented.
    the focus shifted. Update `knowledge.md` if the user shared a fact
    (domain info, stack, team, environment). Update `preferences.md`
    if a stable preference emerged.
-5. `git add -A` inside `ai-memory/` only. Commit with a descriptive
+5. `git add -A` inside the repo only. Commit with a descriptive
    message. Push using ephemeral credential helper (token from env var).
 6. Report commit hash + what changed at the end of the response.
 7. **Deliverables (PDFs, DOCX, XLSX, PNGs, etc.) are NOT pushed
@@ -78,72 +71,17 @@ failure visible, not prevented.
 - **Projects** (active/past work with status) → `projects.md`
 - **Verbatim record** (what was said) → `chat_history/`
 
-**Note on summaries:** `sessions/` directory was removed in favor of
-the verbatim transcript + `decisions.md` + `context.md` Recently
-Completed. Three sources of truth, each with a distinct role, no
-overlap. See `decisions.md` for the rationale.
-
 ## Open Threads
-- **RESOLVED (partially, see caveat) — Claude sessions skip FIRST ACTION.**
-  `scripts/new_session.sh` expects a `session_id` from IM gateway
-  metadata. The Claude app interface (claude.ai / mobile) does not
-  expose one. A Claude session ran this entire repo-review conversation
-  without creating a transcript file at all, violating the "do not
-  proceed until this is done" rule, and was only caught when the user
-  asked why the chat history didn't show it. Fixed by manually
-  assigning a placeholder session_id (`claude-app-mobile-<random>`) and
-  backfilling the session from context after the fact. Not a real fix:
-  still depends on the assistant remembering to do this unprompted at
-  the START of the next Claude session, since no session_id is handed
-  to it automatically. Consider: instruct Claude sessions specifically
-  to self-generate a session_id (e.g. from user_time_v0 timestamp) and
-  run new_session.sh as literally the first tool call, before reading
-  any other memory file.
-- **RESOLVED — chat_history.md vs sessions/.** Keep verbatim + pre-commit
-  hook. Hook implemented at `scripts/pre_commit_scan.py`, invoked by
-  `.git/hooks/pre-commit`. Tested, both token-prefix and high-entropy
-  detection work.
-- **RESOLVED — scope creep in unified repo.** Extended `.gitignore` to
-  exclude all deliverable file types. Deliverables live in
-  `/home/z/my-project/download/` outside git. Force-add only with
-  `git add -f` when a binary truly needs version control here.
-- **PARTIALLY RESOLVED — token discipline.** Pre-commit hook done.
-  PAT rotates daily on user side (damage control). The actual fix
-  — move PAT to env var so opening prompt says "use $GH_PAT"
-  instead of pasting the literal value — remains a recommended
-  user-side action. Would collapse exposure window to zero. See
-  `decisions.md` for the distinction.
-- `preferences.md` still has unfilled sections: Tooling & Environment,
-  Document & Output Preferences, Coding Style. Capture these as they
-  emerge.
-- The PAT cannot create new repos (no Administration scope). Not a
-  blocker since we're staying in one repo.
+_None yet._
 
 ## Next Actions
-- Wait for the user's actual task.
+- Wait for the user's first task.
 
 ## Recently Completed
 _(Capped at 5 entries. Older items live in `decisions.md` and the
 verbatim transcript at `chat_history/`.)_
 
-- 2026-09-08 — Lean trim. Archived 13 older `decisions.md` entries to
-  `archive/decisions-2026-09-08-session-1.md`. Capped this section at
-  5 entries. Convention: when `decisions.md` crosses ~20 active
-  entries or 25KB, archive the oldest batch. Same for this section
-  at 7 entries.
-- 2026-09-08 — Added `scripts/sync_before_work.sh` for alternating-
-  session safety. Pulls latest, summarizes what changed, warns if
-  memory files were modified. Requires `GH_PAT` env var.
-- 2026-09-08 — Reviewed two external guides (CLAW tutorial +
-  persistent-memory-deploy). Adopted `knowledge.md` for facts.
-  Rejected `conversations/` (redundant with `chat_history/`).
-  Added troubleshooting section to README.
-- 2026-09-08 — Dropped `sessions/` directory. Three sources of
-  truth now: verbatim transcript, `decisions.md`, `context.md`
-  Recently Completed. No overlap.
-- 2026-09-08 — Auto-generate session_id in `new_session.sh` for
-  sessions without IM gateway metadata (Claude.ai, ChatGPT).
-  Added CI transcript-check workflow as visibility backstop.
+_None yet._
 
 ## Blockers / Waiting On
 _None yet._
