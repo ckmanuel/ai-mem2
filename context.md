@@ -123,68 +123,27 @@ overlap. See `decisions.md` for the rationale.
 - Wait for the user's actual task.
 
 ## Recently Completed
-- 2026-09-08 — Initialized memory repo structure.
-- 2026-09-08 — Stored writing voice and style spec in `preferences.md`.
-- 2026-09-08 — Unified workspace + transcript into one repo. Caught and
-  redacted PAT leak in `chat_history.md` before pushing.
-- 2026-09-08 — Deleted `scripts/redact_token.py` (leak vector). Added
-  "no manufactured criticism" rule to feedback tone. Scoped git sync
-  protocol. Logged decisions.
-- 2026-09-08 — External critique of repo structure. Logged three open
-  decisions: chat_history/sessions overlap, scope creep risk, token
-  discipline process fixes.
-- 2026-09-08 — Resolved all three open decisions. Built and installed
-  pre-commit hook at `scripts/pre_commit_scan.py`. Extended `.gitignore`
-  for all deliverable types. Hook tested with fake tokens — works.
-- 2026-09-08 — Clarified deliverable backup policy with user. Final
-  decision: deliverables stay local-only by default, pushed to GitHub
-  only when user explicitly asks. Logged decision, updated workflow.
-- 2026-09-08 — Second external critique. Three fixes: (1) added
-  `scripts/install_hooks.sh` for one-command hook install on fresh
-  clones; (2) raised entropy threshold from 4.0 to 4.5 bits/char
-  after re-testing four cases; (3) honestly logged that token
-  discipline remains partial — the two real fixes (PAT rotation,
-  env var) are user-side actions and still pending.
-- 2026-09-08 — Third and fourth critiques. Token discipline framing
-  corrected: rotation = damage control, env var = prevention. Not
-  equivalent. Install gap acknowledged honestly. CI backstop added
-  at `.github/workflows/secret-scan.yml` (runs `scripts/scan_repo.py`
-  on every push and PR).
-- 2026-09-08 — Migrated `chat_history.md` (single 570-line file) to
-  `chat_history/<model>/<session_id>-<date>.md` per-session files.
-  Old file deleted. Added `chat_history/README.md` documenting
-  folder convention. Workflow updated: new session = new transcript
-  file under the model folder.
-- 2026-09-08 — Claude session ran an entire repo-review conversation
-  (~9 exchanges) without running the FIRST ACTION transcript step,
-  because it has no IM gateway session_id available. Caught when user
-  asked why chat history didn't show it. Backfilled retroactively at
-  `chat_history/Claude/claude-app-mobile-9f3a2c-2026-09-08.md` with a
-  manual placeholder session_id. Root cause not fully fixed — see Open
-  Threads.
-- 2026-09-08 — Verified PAT permissions end-to-end. Read, write,
-  push, pull, workflow scope all work for ckmanuel/ai-memory.
-  Cannot create new repos (lacks Administration scope). Proved
-  PDF push/pull works: created test PDF, force-added (`git add -f`
-  overrides .gitignore), pushed at hash 0299bae, cloned fresh, PDF
-  landed with readable content, cleaned up at hash caafa48.
-- 2026-09-08 — Auto-generate session_id in `new_session.sh` when IM
-  gateway metadata is unavailable (Claude.ai, ChatGPT, etc.). Added
-  CI transcript-check workflow that flags pushes which don't modify
-  a transcript file. Honest logging: this fixes the missing-args
-  issue, doesn't truly force the assistant to run the script.
-- 2026-09-08 — Fifth critique identified `sessions/` directory as
-  structural redundancy with `chat_history/`. Dropped `sessions/`
-  entirely. Three sources of truth now: verbatim transcript,
-  `decisions.md`, `context.md` Recently Completed. No overlap.
-  Original "keep both" decision superseded.
-- 2026-09-08 — Reviewed two external guides (CLAW blog tutorial,
-  persistent-memory-deploy.vercel.app). Tutorial mostly reproduces
-  what we have, with less secure defaults (PAT in `.git/config`).
-  Memory guide proposed `knowledge.md` for facts and `conversations/`
-  for summaries. Added `knowledge.md` (useful — we had no facts file).
-  Rejected `conversations/` (we already removed `sessions/` for the
-  same redundancy reason). Added troubleshooting section to README.
+_(Capped at 5 entries. Older items live in `decisions.md` and the
+verbatim transcript at `chat_history/`.)_
+
+- 2026-09-08 — Lean trim. Archived 13 older `decisions.md` entries to
+  `archive/decisions-2026-09-08-session-1.md`. Capped this section at
+  5 entries. Convention: when `decisions.md` crosses ~20 active
+  entries or 25KB, archive the oldest batch. Same for this section
+  at 7 entries.
+- 2026-09-08 — Added `scripts/sync_before_work.sh` for alternating-
+  session safety. Pulls latest, summarizes what changed, warns if
+  memory files were modified. Requires `GH_PAT` env var.
+- 2026-09-08 — Reviewed two external guides (CLAW tutorial +
+  persistent-memory-deploy). Adopted `knowledge.md` for facts.
+  Rejected `conversations/` (redundant with `chat_history/`).
+  Added troubleshooting section to README.
+- 2026-09-08 — Dropped `sessions/` directory. Three sources of
+  truth now: verbatim transcript, `decisions.md`, `context.md`
+  Recently Completed. No overlap.
+- 2026-09-08 — Auto-generate session_id in `new_session.sh` for
+  sessions without IM gateway metadata (Claude.ai, ChatGPT).
+  Added CI transcript-check workflow as visibility backstop.
 
 ## Blockers / Waiting On
 _None yet._

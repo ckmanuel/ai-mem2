@@ -21,6 +21,7 @@ learned during the session is committed and pushed back so it persists.
 | `context.md`     | Current work-in-progress, open threads, and short-term focus.         |
 | `chat_history/`  | Verbatim transcripts, one file per session, organized by AI model. See `chat_history/README.md`. |
 | `scripts/`       | `pre_commit_scan.py` (local hook), `scan_repo.py` (CI scanner), `install_hooks.sh` (hook install), `new_session.sh` (transcript bootstrap), `sync_before_work.sh` (pull + summarize before editing in alternating sessions). |
+| `archive/`       | Older decision log entries moved here when `decisions.md` crosses ~20 entries or 25KB. Full rationale preserved. |
 | `.github/workflows/secret-scan.yml` | CI backstop: runs scanner on every push and PR. |
 | `.github/workflows/transcript-check.yml` | CI backstop: flags pushes that don't update a transcript file. |
 
@@ -28,6 +29,9 @@ learned during the session is committed and pushed back so it persists.
 
 - **Concise over verbose** — each file should be skimmable in under 2 minutes.
 - **Append-only where possible** — `decisions.md` is append-only.
+- **Trim when bloated** — when `decisions.md` crosses ~20 active entries
+  or 25KB, archive the oldest batch to `archive/decisions-<date-range>.md`.
+  Same for `context.md` Recently Completed at 7 entries.
 - **No secrets** — never store API keys, tokens, passwords, or PII here.
 - **Update in place for** `preferences.md`, `projects.md`, `context.md`.
 - **Three sources of truth, no overlap:** verbatim transcript
