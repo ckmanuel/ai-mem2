@@ -30,6 +30,30 @@ This file holds:
 - Deliverables stay local unless explicitly pushed.
 - One repo for memory + transcript (no separate repo).
 
+## Tools Worth Knowing About
+Adjacent tools the user has asked about or that may be useful in future
+sessions. Not currently installed. Logged here so future sessions have
+context without re-fetching.
+
+- **bex-co/bex-security** — Open-source AI security scanner. Upstream
+  fork of OpenAI Codex Security. Scans code repositories for
+  vulnerabilities (CWEs, injection flaws, auth bugs) using AI agents.
+  Supports Codex, Claude Code, Kimi Code, Muse Code, Qwen Code, MiMo
+  Code. Different category from our setup: we scan for secrets in
+  commits; Bex scans for vulnerabilities in code. Worth evaluating if
+  the user starts building real code projects in this workspace.
+
+- **romangalaxys10-spec/memtrant** — Open-source multi-agent
+  coordination server. Same author as the persistent-memory guide
+  reviewed in exchange 35 (Roman / rommark.dev). Self-hosted
+  TypeScript/Next.js 16/Prisma. Provides a transit memory server for
+  distributed AI agent teams — shared memory, agent roles (Team Lead,
+  Worker, Observer), instruction boards, heartbeats. Designed for
+  multi-agent scenarios. Different model from ours: we use GitHub as
+  persistence, one agent per session. Memtrant is a database-backed
+  server, multiple agents read/write simultaneously. Worth evaluating
+  if the user starts building multi-agent workflows.
+
 ## Notes
 - When the user says "remember this" or "save this to memory," add the
   fact here (or to `preferences.md` if it's a preference, or to
