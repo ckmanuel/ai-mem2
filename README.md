@@ -20,7 +20,7 @@ learned during the session is committed and pushed back so it persists.
 | `context.md`     | Current work-in-progress, open threads, and short-term focus.         |
 | `chat_history/`  | Verbatim transcripts, one file per session, organized by AI model. See `chat_history/README.md`. |
 | `sessions/`      | Per-session summaries (one file per session, append-only).            |
-| `scripts/`       | `pre_commit_scan.py` (local hook), `scan_repo.py` (CI scanner), `install_hooks.sh` (install). |
+| `scripts/`       | `pre_commit_scan.py` (local hook), `scan_repo.py` (CI scanner), `install_hooks.sh` (hook install), `new_session.sh` (transcript bootstrap). |
 | `.github/workflows/secret-scan.yml` | CI backstop: runs scanner on every push and PR. |
 
 ## Conventions
@@ -68,3 +68,44 @@ every push and PR. This catches secrets that slipped past a missing
 local hook. Different threat model — it catches leaks after they hit
 remote history, not before. If CI fails on a push, the secret is
 already in remote history and must be rotated immediately.
+
+## Recommended opening prompt for a new session
+
+Paste this at the start of every new chat session. Replace
+`<session_id>` with the actual session ID from the IM gateway
+metadata, and `<YYYY-MM-DD>` with today's date. If the PAT lives in
+an env var on your machine (recommended), reference it as
+`$GH_PAT` instead of pasting the literal token.
+
+```
+I want you to use my private GitHub repository as persistent memory
+across chat sessions.
+
+GitHub repository: https://github.com/ckmanuel/ai-memory.git
+GitHub Personal Access Token: <paste token, or "use $GH_PAT env var">
+
+At the beginning of this session:
+1. Clone the repository to a working directory.
+2. Reset the remote URL to clean HTTPS (do NOT leave the token in
+   .git/config).
+3. Read context.md FIRST. It has a "FIRST ACTION AT SESSION START"
+   block at the top.
+4. Run ./scripts/new_session.sh <session_id> <YYYY-MM-DD> [model]
+   to create this session's transcript file.
+5. Read preferences.md, decisions.md, and any relevant project /
+   session files.
+6. Use the relevant information as context for this session.
+
+During the conversation:
+- Save important information about my preferences, projects, decisions,
+  and ongoing work.
+- Append each exchange to this session's transcript file at
+  chat_history/<model>/<session_id>-<YYYY-MM-DD>.md (verbatim, with
+  trace_id, redact any token or secret).
+- Update existing memories instead of creating duplicates.
+- After meaningful work, commit and push using an ephemeral credential
+  helper (token from env var, never persisted to .git/config).
+
+NEVER save, commit, or expose my GitHub token inside the repository.
+The "never commit token" rule overrides "verbatim transcript."
+```

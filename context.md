@@ -3,12 +3,37 @@
 Short-term, in-progress state. The assistant reads this file first after
 cloning because it points to what is actively being worked on right now.
 
+## ⚠️ FIRST ACTION AT SESSION START
+
+Before doing anything else in a new session, create the transcript file:
+
+```sh
+./scripts/new_session.sh <session_id> <YYYY-MM-DD> [model]
+```
+
+- `session_id`: from the IM gateway metadata JSON in the user's first
+  message of the session.
+- `YYYY-MM-DD`: today's date.
+- `model`: optional. Defaults to `GLM`. Use `Claude`, `ChatGPT`, etc.
+  when those models enter use.
+
+This creates `chat_history/<model>/<session_id>-<date>.md` with the
+correct header block. Then append each exchange to that file as the
+session progresses.
+
+**Do not proceed until this is done.** If the session ends without a
+transcript file, the verbatim record is lost. This is the most
+important step at session start.
+
 ## Current Focus
 - Memory + workspace + transcript setup is complete.
 - Voice and style rules (including the no-manufactured-criticism rule)
   are active and stored in `preferences.md`.
 - Git sync protocol is scoped: commit only inside `ai-memory/`, only
   after meaningful work, descriptive messages, token via env var.
+- New session workflow is enforced via `scripts/new_session.sh` +
+  this `FIRST ACTION` block + the recommended opening prompt in
+  `README.md`. See `decisions.md` for the full chain.
 - Awaiting the user's first real task.
 
 ## Workflow (every meaningful unit of work)

@@ -16,6 +16,43 @@ Entry template:
 - **Status:** active | superseded by <YYYY-MM-DD entry>
 -->
 
+## 2026-09-08 — Make new-session transcript creation automatic (Option 3)
+- **Context:** User asked whether new sessions that clone the git repo
+  auto-create the verbatim transcript file. Honest answer: no. The
+  convention was documented in `context.md` workflow step 7, but
+  nothing enforced it. In fact, this session didn't do it — the
+  assistant started writing `chat_history.md` only in exchange 3 when
+  explicitly asked. The file got created retroactively. If the user
+  had never asked, the whole session would have been lost.
+- **Decision:** Option 3 — combine three layers of enforcement:
+  1. **`scripts/new_session.sh`** — one-command transcript bootstrap.
+     Takes `<session_id> <YYYY-MM-DD> [model]` as args. Creates the
+     file with the correct header block. Refuses to overwrite an
+     existing file (warns instead). Tested with four scenarios: GLM
+     default, Claude, missing args (fails), existing file (warns).
+  2. **`context.md` FIRST ACTION AT SESSION START block** — bold
+     warning at the top of `context.md`, before the Current Focus
+     section. Tells the assistant to run `new_session.sh` before doing
+     anything else. Explicitly says "Do not proceed until this is done."
+  3. **Recommended opening prompt in `README.md`** — paste-able
+     template for the user's first message of a new session.
+     Mandates reading `context.md` first, running
+     `new_session.sh`, and appending each exchange to the transcript
+     file. References `$GH_PAT` env var as the recommended way to
+     pass the token (no literal token in the prompt).
+- **Why three layers:** each catches a different failure mode.
+  - Opening prompt is the first thing the assistant sees. Strongest
+    signal. But users may abbreviate or skip parts of the prompt.
+  - `context.md` FIRST ACTION block reinforces for sessions where the
+    prompt was abbreviated. The assistant reads `context.md` after
+    cloning, before any real work.
+  - The script makes execution trivial. No need to remember the file
+    path convention or header format. Just `./scripts/new_session.sh
+    <id> <date>`.
+- **Status:** active — implemented and tested. Layer 1 (script) and
+  layer 2 (context.md block) are in place. Layer 3 (opening prompt
+  template) is documented in README.md for the user to copy.
+
 ## 2026-09-08 — Migrate chat_history.md to per-session files under chat_history/<model>/
 - **Context:** Original `chat_history.md` was a single growing file.
   Reached 570+ lines after one session. Scrolling to find a specific

@@ -65,3 +65,19 @@ Each file starts with a header block:
 - **One file per session.** Don't merge sessions.
 - **Best-effort.** If the chat context window is truncated, older
   messages may be lost.
+
+## Creating a new session transcript
+
+Run from the repo root at the start of a new session:
+
+```sh
+./scripts/new_session.sh <session_id> <YYYY-MM-DD> [model]
+```
+
+`model` is optional, defaults to `GLM`. Use `Claude`, `ChatGPT`, etc.
+for other models. The script creates the file with the correct header
+block. Refuses to overwrite an existing file (warns instead).
+
+See `context.md` "FIRST ACTION AT SESSION START" block — running this
+script is the first thing the assistant should do at the start of any
+new session.
