@@ -43,23 +43,28 @@ failure visible, not prevented.
 - Awaiting the user's first real task.
 
 ## Workflow (every meaningful unit of work)
-1. Do the work.
-2. Append the new exchange to the current session's transcript file at
+1. **If your session has been idle or another session may have
+   committed, run `GH_PAT=$GH_PAT ./scripts/sync_before_work.sh`
+   BEFORE making any memory file edits.** It pulls latest from origin,
+   prints what changed, and warns if any memory files were modified by
+   the other session. Re-read those files before editing.
+2. Do the work.
+3. Append the new exchange to the current session's transcript file at
    `chat_history/<model>/<session_id>-<YYYY-MM-DD>.md`. Verbatim, with
    trace_id. Redact any PAT or secret that appears in user/assistant text.
-3. Update `decisions.md` if a decision was made. Update `context.md` if
+4. Update `decisions.md` if a decision was made. Update `context.md` if
    the focus shifted. Update `knowledge.md` if the user shared a fact
    (domain info, stack, team, environment). Update `preferences.md`
    if a stable preference emerged.
-4. `git add -A` inside `ai-memory/` only. Commit with a descriptive
+5. `git add -A` inside `ai-memory/` only. Commit with a descriptive
    message. Push using ephemeral credential helper (token from env var).
-5. Report commit hash + what changed at the end of the response.
-6. **Deliverables (PDFs, DOCX, XLSX, PNGs, etc.) are NOT pushed
+6. Report commit hash + what changed at the end of the response.
+7. **Deliverables (PDFs, DOCX, XLSX, PNGs, etc.) are NOT pushed
    automatically.** Default is local-only in
    `/home/z/my-project/download/`. Only push when user explicitly asks
    ("push X", "back up X to GitHub"). Use `git add -f <file>` to
    override .gitignore.
-7. **New session = new transcript file.** At the start of a new session,
+8. **New session = new transcript file.** At the start of a new session,
    create `chat_history/<model>/<new_session_id>-<today>.md` via
    `./scripts/new_session.sh`. Don't append to a previous session's
    file.

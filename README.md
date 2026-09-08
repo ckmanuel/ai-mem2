@@ -20,7 +20,7 @@ learned during the session is committed and pushed back so it persists.
 | `decisions.md`   | Important decisions and their rationale (append-only log).             |
 | `context.md`     | Current work-in-progress, open threads, and short-term focus.         |
 | `chat_history/`  | Verbatim transcripts, one file per session, organized by AI model. See `chat_history/README.md`. |
-| `scripts/`       | `pre_commit_scan.py` (local hook), `scan_repo.py` (CI scanner), `install_hooks.sh` (hook install), `new_session.sh` (transcript bootstrap). |
+| `scripts/`       | `pre_commit_scan.py` (local hook), `scan_repo.py` (CI scanner), `install_hooks.sh` (hook install), `new_session.sh` (transcript bootstrap), `sync_before_work.sh` (pull + summarize before editing in alternating sessions). |
 | `.github/workflows/secret-scan.yml` | CI backstop: runs scanner on every push and PR. |
 | `.github/workflows/transcript-check.yml` | CI backstop: flags pushes that don't update a transcript file. |
 
@@ -150,3 +150,12 @@ into the transcript file retroactively. Log the gap in `decisions.md`.
 requests/hour. Memory updates are typically minimal (a few commits per
 session). If you hit the limit, something is wrong — check for
 runaway scripts or repeated clone/push loops.
+
+**Alternating sessions — stale state.** If you're running two sessions
+on the same repo (Session A finishes, then B becomes active), B must
+pull latest before editing. Run
+`GH_PAT=$GH_PAT ./scripts/sync_before_work.sh` first. The script
+fetches, prints what changed, and warns if any memory files were
+modified by the other session. Re-read those files before editing them.
+Without this, B will commit on stale state, the push will get
+rejected, and B may produce work that contradicts decisions A just made.

@@ -16,6 +16,36 @@ Entry template:
 - **Status:** active | superseded by <YYYY-MM-DD entry>
 -->
 
+## 2026-09-08 — Add sync_before_work.sh for alternating-session safety
+- **Context:** User asked how to enforce "Session B must pull before
+  becoming active" in alternating-session setups. Existing workflow
+  doc mentioned pulling before push but didn't enforce pulling before
+  *editing*. Session B idle while Session A commits, then B becomes
+  active on stale state — risks push rejection and contradictory work.
+- **Decision:** Layer 1 + Layer 3 enforcement (Layer 2 redundant —
+  git's built-in rejection already catches this with worse messaging):
+  1. **`scripts/sync_before_work.sh`** — one-command pull + summarize.
+     Requires `GH_PAT` env var. Fetches latest, compares local HEAD
+     to `origin/main`, prints new commits + files changed since
+     local HEAD. Warns if any memory files were modified. Tested
+     with three scenarios: missing GH_PAT (clear error), behind
+     (pulls, lists 2 new commits + 2 changed files, prints ACTION
+     REQUIRED warning), up to date (clean message).
+  2. **`context.md` workflow step 1** now mandates running
+     `sync_before_work.sh` before any memory file edits if the
+     session has been idle or another session may have committed.
+  3. **`README.md` troubleshooting** adds "Alternating sessions —
+     stale state" entry pointing at the script.
+- **First version had two bugs:** (1) `git fetch` failed without
+  credentials because origin URL is clean HTTPS (PAT stripped for
+  security). (2) Error message said "merge conflict" when the real
+  failure was auth. Both fixed by requiring `GH_PAT` env var and
+  using the ephemeral credential helper pattern for fetch and pull.
+  Error reporting now distinguishes auth failures from rebase
+  conflicts.
+- **Status:** active — script implemented and tested, workflow
+  updated, README updated.
+
 ## 2026-09-08 — Add knowledge.md; reject conversations/ from external guide
 - **Context:** User shared two external guides (CLAW blog tutorial at
   claw.rommark.dev, persistent-memory guide at
