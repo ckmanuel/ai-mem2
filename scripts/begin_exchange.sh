@@ -71,7 +71,12 @@ fi
 # Determine exchange number if not provided.
 if [ -z "$EXCHANGE_NUM" ]; then
     # Count existing "#### Exchange" headers and add 1.
-    EXISTING=$(grep -c "^#### Exchange " "$TRANSCRIPT" 2>/dev/null || echo 0)
+    # NOTE: `grep -c` prints "0" AND exits 1 when there are zero matches.
+    # A bare `|| echo 0` fallback double-counts in that case (stdout
+    # becomes "0\n0"), breaking the arithmetic below. Use `|| true` to
+    # neutralize the exit status without adding a second line of output.
+    EXISTING=$(grep -c "^#### Exchange " "$TRANSCRIPT" 2>/dev/null || true)
+    EXISTING="${EXISTING:-0}"
     EXCHANGE_NUM=$((EXISTING + 1))
 fi
 
