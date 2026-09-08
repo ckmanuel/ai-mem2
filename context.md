@@ -56,6 +56,21 @@ important step at session start.
    append to a previous session's file.
 
 ## Open Threads
+- **RESOLVED (partially, see caveat) — Claude sessions skip FIRST ACTION.**
+  `scripts/new_session.sh` expects a `session_id` from IM gateway
+  metadata. The Claude app interface (claude.ai / mobile) does not
+  expose one. A Claude session ran this entire repo-review conversation
+  without creating a transcript file at all, violating the "do not
+  proceed until this is done" rule, and was only caught when the user
+  asked why the chat history didn't show it. Fixed by manually
+  assigning a placeholder session_id (`claude-app-mobile-<random>`) and
+  backfilling the session from context after the fact. Not a real fix:
+  still depends on the assistant remembering to do this unprompted at
+  the START of the next Claude session, since no session_id is handed
+  to it automatically. Consider: instruct Claude sessions specifically
+  to self-generate a session_id (e.g. from user_time_v0 timestamp) and
+  run new_session.sh as literally the first tool call, before reading
+  any other memory file.
 - **RESOLVED — chat_history.md vs sessions/.** Keep verbatim + pre-commit
   hook. Hook implemented at `scripts/pre_commit_scan.py`, invoked by
   `.git/hooks/pre-commit`. Tested, both token-prefix and high-entropy
@@ -112,6 +127,13 @@ important step at session start.
   Old file deleted. Added `chat_history/README.md` documenting
   folder convention. Workflow updated: new session = new transcript
   file under the model folder.
+- 2026-09-08 — Claude session ran an entire repo-review conversation
+  (~9 exchanges) without running the FIRST ACTION transcript step,
+  because it has no IM gateway session_id available. Caught when user
+  asked why chat history didn't show it. Backfilled retroactively at
+  `chat_history/Claude/claude-app-mobile-9f3a2c-2026-09-08.md` with a
+  manual placeholder session_id. Root cause not fully fixed — see Open
+  Threads.
 - 2026-09-08 — Verified PAT permissions end-to-end. Read, write,
   push, pull, workflow scope all work for ckmanuel/ai-memory.
   Cannot create new repos (lacks Administration scope). Proved

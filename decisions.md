@@ -80,6 +80,40 @@ Entry template:
   start of a new session rather than appending to an existing file.
 - **Status:** active — migration complete, structure live.
 
+## 2026-09-08 — Claude session skipped FIRST ACTION transcript step
+- **Context:** `context.md`'s "FIRST ACTION AT SESSION START" block
+  requires running `scripts/new_session.sh <session_id> <date> [model]`
+  before doing anything else, using a `session_id` from IM gateway
+  metadata. A Claude session (claude.ai app interface) cloned the repo,
+  read memory files, and ran an entire repo-review conversation — version
+  checks, critique of install_hooks.sh, research on GitHub push
+  protection — without ever running this script or writing to any
+  transcript file. The gap was invisible until the user asked why the
+  conversation wasn't showing up in git.
+- **Root cause:** The Claude app interface does not expose an IM gateway
+  session_id the way the script assumes. There was no hard blocker
+  preventing the assistant from proceeding without one; it simply moved
+  on to answering the user's questions instead of treating the missing
+  precondition as something to solve.
+- **Decision:** Backfill this session retroactively: created
+  `chat_history/Claude/claude-app-mobile-9f3a2c-2026-09-08.md` with a
+  manually assigned placeholder session_id, reconstructed all exchanges
+  from context (not written turn-by-turn, noted as such in the file).
+  Logged the gap here and in `context.md` rather than quietly fixing it
+  and moving on.
+- **Alternatives considered:** Silently create the file and say nothing
+  (rejected — user explicitly asked why history was missing; the honest
+  answer is more useful than a quiet patch); wait for the user to notice
+  again in a future session (rejected — same failure would repeat).
+- **Implications:** The FIRST ACTION rule is not actually self-enforcing
+  for Claude sessions specifically, since the session_id precondition
+  can't be met the way the script expects. This is a real unresolved gap,
+  not fully fixed by this backfill — the next Claude session still has
+  to remember to self-generate a session_id and run the script
+  unprompted, with nothing structurally forcing it.
+- **Status:** partially resolved — backfilled this session, root cause
+  (no automatic session_id for Claude sessions) still open.
+
 ## 2026-09-08 — External critique round 2: hook install, threshold, token discipline
 - **Context:** Second external critique. Three points: (1) hook isn't
   installed on fresh clones because .git/hooks/ isn't version-controlled;
