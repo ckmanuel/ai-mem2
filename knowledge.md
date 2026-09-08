@@ -1,60 +1,20 @@
 # Knowledge
 
-Facts and information the user has shared that don't fit elsewhere.
-Update in place — replace outdated info rather than appending.
-
-This file holds:
-- Domain expertise and context the user works in.
-- Stack, tools, and frameworks the user uses day-to-day.
-- Team, organization, or business context.
-- Stable facts about the user's environment, conventions, or workflow.
-- Anything that's a "fact" rather than a "preference" (which goes in
-  `preferences.md`) or a "decision" (which goes in `decisions.md`).
+Facts the user shares that don't fit elsewhere. Update in place.
 
 ## Domain & Work Context
-- (to be filled as facts emerge)
+- (to be filled)
 
 ## Stack & Tools
-- (to be filled as facts emerge)
+- (to be filled)
 
 ## Team & Organization
-- (to be filled as facts emerge)
+- (to be filled)
 
 ## Environment
 - Timezone: (to be confirmed)
 - Primary chat platform: (to be confirmed)
-- Other chat platforms used: (to be confirmed)
-
-## Conventions & Workflow
-- PAT rotates daily (recommended; user-side).
-- Deliverables stay local unless explicitly pushed.
-- One repo for memory + transcript (no separate repo).
-
-## Tools Worth Knowing About
-Adjacent tools the user has asked about or that may be useful in future
-sessions. Not currently installed. Logged here so future sessions have
-context without re-fetching.
-
-- **bex-co/bex-security** — Open-source AI security scanner. Upstream
-  fork of OpenAI Codex Security. Scans code repositories for
-  vulnerabilities (CWEs, injection flaws, auth bugs) using AI agents.
-  Supports Codex, Claude Code, Kimi Code, Muse Code, Qwen Code, MiMo
-  Code. Different category from our setup: we scan for secrets in
-  commits; Bex scans for vulnerabilities in code. Worth evaluating if
-  the user starts building real code projects in this workspace.
-
-- **romangalaxys10-spec/memtrant** — Open-source multi-agent
-  coordination server. Self-hosted TypeScript/Next.js 16/Prisma.
-  Provides a transit memory server for distributed AI agent teams —
-  shared memory, agent roles (Team Lead, Worker, Observer),
-  instruction boards, heartbeats. Designed for multi-agent scenarios.
-  Different model from ours: we use GitHub as persistence, one agent
-  per session. Memtrant is a database-backed server, multiple agents
-  read/write simultaneously. Worth evaluating if the user starts
-  building multi-agent workflows.
 
 ## Notes
-- When the user says "remember this" or "save this to memory," add the
-  fact here (or to `preferences.md` if it's a preference, or to
-  `decisions.md` if it's a decision). Be explicit about where the
-  fact belongs.
+- When the user says "remember this," add the fact here (or to
+  `preferences.md` if it's a preference, `decisions.md` if a decision).
