@@ -1,0 +1,20 @@
+5d41402abc4b2a76b9719d911017c592
+098f6bcd4621d373cade4e832627b4f6
+da39a3ee5e6b4b0d3255bfef95601890afd80709
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+c8d3089d4b0e3a2e8c6f7d1e9a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2
+550e8400-e29b-41d4-a716-446655440000
+123e4567-e89b-12d3-a456-426614174000
+v1.2.3
+v2.0.0-rc.1
+https://github.com/ckmanuel/ai-memory.git
+https://example.com/path/to/resource
+./scripts/install_hooks.sh
+/home/z/my-project/scripts/redact_token.py
+chat_history/GLM/web-dbcfad74-2026-09-08.md
+sha256:abcdef1234567890
+README.md
+context.md
+decisions.md
+This is a normal English sentence with no secrets in it at all.
+The quick brown fox jumps over the lazy dog.

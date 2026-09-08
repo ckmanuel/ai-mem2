@@ -69,7 +69,11 @@ it runs, local commits won't be scanned.
 
 ### 5. Use the opening prompt at the start of every new chat session
 
-Paste this at the start of every new chat with your AI agent:
+Paste this at the start of every new chat with your AI agent. The
+prompt tells the assistant to run `./scripts/new_session.sh` at
+session start. That script defaults to `GLM` as the model — pass a
+different name (`Claude`, `ChatGPT`, etc.) as the third arg if you're
+using a different chat platform.
 
 ```
 I want you to use my private GitHub repository as persistent memory
@@ -165,6 +169,25 @@ rotate it immediately.
 Recommended: store the PAT in an env var (`export GH_PAT=...`) and
 reference it as `$GH_PAT` in the opening prompt. Chat never sees the
 token.
+
+## Files outside the repo
+
+`.gitignore` blocks binaries (PDFs, DOCX, XLSX, PNGs, JPGs, MP3s, etc.)
+by default. Deliverables, screenshots, and other binary files live in
+`/home/z/my-project/download/` (or wherever your workspace keeps
+downloads) — not in this repo. The reason: every push of a binary
+stores a new copy in git history forever, which bloats the repo and
+slows future clones.
+
+If you specifically want to back up a binary to git, override
+`.gitignore` explicitly:
+
+```sh
+git add -f path/to/file.pdf
+```
+
+Only do this when the file genuinely needs version control here.
+Routine large-file backup should use Git LFS or a separate repo.
 
 ## Credits
 

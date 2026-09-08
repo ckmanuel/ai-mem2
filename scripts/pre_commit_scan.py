@@ -70,7 +70,12 @@ FALSE_POSITIVES = [
 # almost never contain `/` (PEM keys, JWTs, and known-token-prefix
 # patterns are matched separately by PREFIX_PATTERNS). If a high-
 # entropy candidate contains `/`, it's almost certainly a path or URL.
-PATH_LIKE_RE = re.compile(r"^[A-Za-z0-9._\-]+/[A-Za-z0-9._\-/]*")
+# Matches:
+#   /abs/path/to/file
+#   ~/path/to/file
+#   ./relative/path/to/file
+#   relative/path/to/file
+PATH_LIKE_RE = re.compile(r"^[/.~]?[A-Za-z0-9._\-]+(/[A-Za-z0-9._\-/]+)+$")
 
 
 def shannon_entropy(s):

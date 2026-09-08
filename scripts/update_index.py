@@ -5,7 +5,12 @@ For each transcript in chat_history/<model>/<session_id>-<date>.md,
 extract a one-line summary and write to INDEX.md.
 
 Summary format:
-  - YYYY-MM-DD Model session_id: <first user message, truncated to ~100 chars>
+  - YYYY-MM-DD Model session_id: <first user msg> → <last assistant msg>
+
+Both halves truncated to ~80 chars. The first user message says what
+the session opened with; the last assistant message usually summarizes
+what was accomplished. Together they give a much better signal than
+the first user message alone.
 
 Grep INDEX.md to find which session mentioned X, instead of grepping
 every transcript. Run after each new session.
@@ -33,11 +38,23 @@ FIRST_USER_RE = re.compile(
     r"\*\*User:\*\*\s*\n+>\s*(.+?)(?:\n>|\n\n|\Z)",
     re.DOTALL,
 )
+LAST_ASSISTANT_RE = re.compile(
+    r"\*\*Assistant:\*\*\s*\n+>\s*(.+?)(?:\n>|\n\n|\Z)",
+    re.DOTALL,
+)
 SESSION_HEADER_RE = re.compile(
     r"^# Session:\s*(.+?)\s*-\s*(\d{4}-\d{2}-\d{2})",
     re.MULTILINE,
 )
 MODEL_RE = re.compile(r"^\*\*Model:\*\*\s*(.+)$", re.MULTILINE)
+
+
+def truncate(text, limit=80):
+    """Collapse whitespace, truncate to limit chars with ellipsis."""
+    text = " ".join(text.split())
+    if len(text) > limit:
+        return text[:limit - 3] + "..."
+    return text
 
 
 def summarize_transcript(path):
@@ -57,16 +74,22 @@ def summarize_transcript(path):
     model = model_match.group(1).strip() if model_match else "unknown"
     model_short = model.split("(")[0].strip()
 
+    # First user message
     user_match = FIRST_USER_RE.search(content)
     if user_match:
-        first_msg = user_match.group(1).strip()
-        first_msg = " ".join(first_msg.split())
-        if len(first_msg) > 100:
-            first_msg = first_msg[:97] + "..."
+        first_user = truncate(user_match.group(1).strip())
     else:
-        first_msg = "(no user message found)"
+        first_user = "(no user message found)"
 
-    return f"- {date} {model_short} `{session_id}`: {first_msg}", None
+    # Last assistant message — find all matches, take the last one
+    assistant_matches = list(LAST_ASSISTANT_RE.finditer(content))
+    if assistant_matches:
+        last_assistant = truncate(assistant_matches[-1].group(1).strip())
+    else:
+        last_assistant = "(no assistant message found)"
+
+    summary = f"- {date} {model_short} `{session_id}`: {first_user} → {last_assistant}"
+    return summary, None
 
 
 def find_transcripts():

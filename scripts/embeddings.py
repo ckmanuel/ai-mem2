@@ -165,7 +165,22 @@ def build():
         exchanges = split_exchanges(content)
 
         if not exchanges:
-            print(f"    (no exchanges found, skipping)")
+            print(f"    WARNING: no exchanges found in {rel}", file=sys.stderr)
+            print(f"    File is invisible to semantic search.", file=sys.stderr)
+            print(f"    Check that the transcript uses the expected format:", file=sys.stderr)
+            print(f"      #### Exchange N - trace <trace_id>", file=sys.stderr)
+            print(f"    Skipping.", file=sys.stderr)
+            # Mark as indexed with zero exchanges so we don't keep retrying.
+            conn.execute(
+                "DELETE FROM exchanges WHERE transcript_path = ?", (rel,))
+            conn.execute(
+                "DELETE FROM transcripts WHERE path = ?", (rel,))
+            conn.execute(
+                "INSERT INTO transcripts (path, file_hash, indexed_at) "
+                "VALUES (?, ?, ?)",
+                (rel, h, datetime.now().isoformat()),
+            )
+            conn.commit()
             continue
 
         texts = [ex["text"] for ex in exchanges]

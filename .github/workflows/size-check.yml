@@ -126,6 +126,41 @@ jobs:
             "When decisions.md crosses ~20 active entries or 25KB, archive the oldest batch."
 
           echo ""
+          echo "=== INDEX.md staleness check ==="
+          echo ""
+
+          # Check if INDEX.md exists and is up to date.
+          # "Up to date" = number of transcript files in chat_history/
+          # matches the number of entries in INDEX.md.
+          if [ ! -f "chat_history/INDEX.md" ]; then
+            # Count transcripts (excluding README.md and INDEX.md itself).
+            transcript_count=$(find chat_history -type f -name "*.md" \
+              -not -name "README.md" \
+              -not -name "INDEX.md" 2>/dev/null | wc -l)
+            if [ "$transcript_count" -gt 0 ]; then
+              echo "WARN: chat_history/INDEX.md is missing but $transcript_count transcript(s) exist."
+              echo "      Run: python3 scripts/update_index.py"
+              WARN=1
+            else
+              echo "OK:   INDEX.md not present, but no transcripts exist either."
+            fi
+          else
+            # Count entries in INDEX.md (lines starting with "- ").
+            index_entries=$(grep -c "^- " chat_history/INDEX.md 2>/dev/null || echo 0)
+            # Count transcripts on disk.
+            transcript_count=$(find chat_history -type f -name "*.md" \
+              -not -name "README.md" \
+              -not -name "INDEX.md" 2>/dev/null | wc -l)
+            if [ "$index_entries" -ne "$transcript_count" ]; then
+              echo "WARN: INDEX.md is stale. Has $index_entries entries but $transcript_count transcript(s) on disk."
+              echo "      Run: python3 scripts/update_index.py"
+              WARN=1
+            else
+              echo "OK:   INDEX.md is up to date ($index_entries entries, $transcript_count transcripts)."
+            fi
+          fi
+
+          echo ""
           if [ "$WARN" -eq 1 ]; then
             echo "RESULT: warnings above. Push is NOT blocked."
             echo "Trim the flagged files in a follow-up commit when convenient."
