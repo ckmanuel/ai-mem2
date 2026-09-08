@@ -18,7 +18,7 @@ learned during the session is committed and pushed back so it persists.
 | `projects.md`    | Active and past projects, with status and key links.                  |
 | `decisions.md`   | Important decisions and their rationale (append-only log).             |
 | `context.md`     | Current work-in-progress, open threads, and short-term focus.         |
-| `chat_history.md`| Verbatim transcript of chat sessions (model -> session -> exchanges).   |
+| `chat_history/`  | Verbatim transcripts, one file per session, organized by AI model. See `chat_history/README.md`. |
 | `sessions/`      | Per-session summaries (one file per session, append-only).            |
 | `scripts/`       | `pre_commit_scan.py` (local hook), `scan_repo.py` (CI scanner), `install_hooks.sh` (install). |
 | `.github/workflows/secret-scan.yml` | CI backstop: runs scanner on every push and PR. |

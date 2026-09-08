@@ -13,8 +13,9 @@ cloning because it points to what is actively being worked on right now.
 
 ## Workflow (every meaningful unit of work)
 1. Do the work.
-2. Append the new exchange to `chat_history.md` (verbatim, with trace_id;
-   redact any PAT or secret that appears in user/assistant text).
+2. Append the new exchange to the current session's transcript file at
+   `chat_history/<model>/<session_id>-<YYYY-MM-DD>.md`. Verbatim, with
+   trace_id. Redact any PAT or secret that appears in user/assistant text.
 3. Update `decisions.md` if a decision was made. Update `context.md` if
    the focus shifted. Add a session summary if the session is wrapping.
 4. `git add -A` inside `ai-memory/` only. Commit with a descriptive
@@ -25,6 +26,9 @@ cloning because it points to what is actively being worked on right now.
    `/home/z/my-project/download/`. Only push when user explicitly asks
    ("push X", "back up X to GitHub"). Use `git add -f <file>` to
    override .gitignore.
+7. **New session = new transcript file.** At the start of a new session,
+   create `chat_history/<model>/<new_session_id>-<today>.md`. Don't
+   append to a previous session's file.
 
 ## Open Threads
 - **RESOLVED — chat_history.md vs sessions/.** Keep verbatim + pre-commit
@@ -73,6 +77,16 @@ cloning because it points to what is actively being worked on right now.
   after re-testing four cases; (3) honestly logged that token
   discipline remains partial — the two real fixes (PAT rotation,
   env var) are user-side actions and still pending.
+- 2026-09-08 — Third and fourth critiques. Token discipline framing
+  corrected: rotation = damage control, env var = prevention. Not
+  equivalent. Install gap acknowledged honestly. CI backstop added
+  at `.github/workflows/secret-scan.yml` (runs `scripts/scan_repo.py`
+  on every push and PR).
+- 2026-09-08 — Migrated `chat_history.md` (single 570-line file) to
+  `chat_history/<model>/<session_id>-<date>.md` per-session files.
+  Old file deleted. Added `chat_history/README.md` documenting
+  folder convention. Workflow updated: new session = new transcript
+  file under the model folder.
 
 ## Blockers / Waiting On
 _None yet._

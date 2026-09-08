@@ -16,6 +16,33 @@ Entry template:
 - **Status:** active | superseded by <YYYY-MM-DD entry>
 -->
 
+## 2026-09-08 — Migrate chat_history.md to per-session files under chat_history/<model>/
+- **Context:** Original `chat_history.md` was a single growing file.
+  Reached 570+ lines after one session. Scrolling to find a specific
+  exchange was painful. Only one model header (`## GLM`) existed because
+  only GLM was in use, but the structure didn't anticipate Claude,
+  ChatGPT, or other models being added later.
+- **Decision:** Migrate to `chat_history/<model>/<session_id>-<date>.md`.
+  Each session gets its own file under the model's folder. One file per
+  session, named with the session ID (stable across files) plus the
+  start date.
+- **Migration performed:**
+  - Source: `chat_history.md` (570 lines, 25 exchanges)
+  - Destination: `chat_history/GLM/web-dbcfad74-3816-4ddb-884c-3f78d55dd4f5-2026-09-08.md`
+  - Old file deleted.
+  - Migration script written, executed, verified (25 exchanges in
+    source matched 25 exchanges in destination), then deleted.
+  - Added `chat_history/README.md` documenting folder structure and
+    file naming convention.
+- **Rationale:** Per-session files are smaller, focused, grep-able,
+  diff-able across sessions, deletable individually. Folder structure
+  anticipates multi-model use (Claude, ChatGPT, etc.) without
+  restructuring later.
+- **Workflow updated:** new session = new transcript file. Assistant
+  creates `chat_history/<model>/<new_session_id>-<today>.md` at the
+  start of a new session rather than appending to an existing file.
+- **Status:** active — migration complete, structure live.
+
 ## 2026-09-08 — External critique round 2: hook install, threshold, token discipline
 - **Context:** Second external critique. Three points: (1) hook isn't
   installed on fresh clones because .git/hooks/ isn't version-controlled;

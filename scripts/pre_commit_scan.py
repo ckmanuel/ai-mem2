@@ -66,10 +66,11 @@ FALSE_POSITIVES = [
     re.compile(r"^https?://"),  # urls
 ]
 
-# Path-like strings: start with / or ~ or ./ and contain at least one /
-# separator. These often match HIGH_ENTROPY_RE because paths are long
-# mixed-case strings, but they are not secrets.
-PATH_LIKE_RE = re.compile(r"^[/.~][A-Za-z0-9._\-/]+/[A-Za-z0-9._\-/]+")
+# Path-like strings: contain at least one `/` separator. Real secrets
+# almost never contain `/` (PEM keys, JWTs, and known-token-prefix
+# patterns are matched separately by PREFIX_PATTERNS). If a high-
+# entropy candidate contains `/`, it's almost certainly a path or URL.
+PATH_LIKE_RE = re.compile(r"^[A-Za-z0-9._\-]+/[A-Za-z0-9._\-/]*")
 
 
 def shannon_entropy(s):
