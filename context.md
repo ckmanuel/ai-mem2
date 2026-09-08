@@ -8,14 +8,13 @@ cloning because it points to what is actively being worked on right now.
 Before doing anything else in a new session, create the transcript file:
 
 ```sh
-./scripts/new_session.sh <session_id> <YYYY-MM-DD> [model]
+./scripts/new_session.sh [session_id] [YYYY-MM-DD] [model]
 ```
 
-- `session_id`: from the IM gateway metadata JSON in the user's first
-  message of the session.
-- `YYYY-MM-DD`: today's date.
-- `model`: optional. Defaults to `GLM`. Use `Claude`, `ChatGPT`, etc.
-  when those models enter use.
+All args are optional. If you have IM gateway metadata (chat.z.ai),
+use the session_id from there. If not (Claude.ai, ChatGPT, etc.), run
+`./scripts/new_session.sh` with no args — the script auto-generates
+a session_id (`auto-<timestamp>-<random6>`) and uses today's date.
 
 This creates `chat_history/<model>/<session_id>-<date>.md` with the
 correct header block. Then append each exchange to that file as the
@@ -24,6 +23,13 @@ session progresses.
 **Do not proceed until this is done.** If the session ends without a
 transcript file, the verbatim record is lost. This is the most
 important step at session start.
+
+**Honest limitation:** nothing in the system *forces* this step. The
+opening prompt, this block, and the script all make it easier and more
+prominent, but the assistant can still skip it. The CI check at
+`.github/workflows/transcript-check.yml` will flag pushes that don't
+modify a transcript file, but that's after the fact — it makes the
+failure visible, not prevented.
 
 ## Current Focus
 - Memory + workspace + transcript setup is complete.

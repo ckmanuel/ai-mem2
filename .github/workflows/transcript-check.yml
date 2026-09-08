@@ -1,0 +1,35 @@
+name: Transcript check
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  check_transcript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # need previous commit to diff against
+      - name: Verify transcript file was modified in this push
+        run: |
+          set -e
+          # Get list of files changed in this push
+          CHANGED=$(git diff --name-only HEAD^ HEAD)
+          echo "Files changed in this push:"
+          echo "$CHANGED"
+          echo ""
+
+          # Check if any file under chat_history/<model>/ was modified
+          if echo "$CHANGED" | grep -qE '^chat_history/[^/]+/.+\.md$'; then
+            echo "PASS: transcript file was modified."
+            echo "$CHANGED" | grep -E '^chat_history/[^/]+/.+\.md$'
+            exit 0
+          fi
+
+          echo "FAIL: no transcript file was modified in this push."
+          echo "Every push should include updates to chat_history/<model>/<session_id>-<date>.md"
+          echo "If this push is intentionally not transcript-related (e.g., scripts/, README),"
+          echo "this failure is informational. Review whether the transcript should have been"
+          echo "updated and was missed."
+          exit 1

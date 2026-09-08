@@ -2,12 +2,20 @@
 # Create a new chat history transcript file for the current session.
 #
 # Usage:
-#   ./scripts/new_session.sh <session_id> <YYYY-MM-DD> [model]
+#   ./scripts/new_session.sh [session_id] [YYYY-MM-DD] [model]
 #
-# Example:
+# All arguments are optional. If omitted:
+#   - session_id: auto-generated as 'auto-<unix_timestamp>-<random6>'
+#   - date: today's date (system local time)
+#   - model: GLM (the current primary model)
+#
+# Examples:
+#   # IM gateway metadata available (chat.z.ai):
 #   ./scripts/new_session.sh web-abc123-def456 2026-09-09 GLM
 #
-# If model is omitted, defaults to GLM (the current primary model).
+#   # No IM gateway (Claude.ai, ChatGPT, etc.) — let it auto-generate:
+#   ./scripts/new_session.sh
+#   ./scripts/new_session.sh "" 2026-09-09 Claude
 #
 # This script is meant to be run as the FIRST action at the start of
 # a new session, per context.md's "FIRST ACTION AT SESSION START" block.
@@ -16,16 +24,24 @@
 
 set -e
 
-if [ $# -lt 2 ]; then
-    echo "Usage: $0 <session_id> <YYYY-MM-DD> [model]" >&2
-    echo "" >&2
-    echo "Example:" >&2
-    echo "  $0 web-abc123-def456 2026-09-09 GLM" >&2
-    exit 1
+# Generate today's date if not provided.
+if [ -z "$2" ]; then
+    DATE=$(date +%Y-%m-%d)
+else
+    DATE="$2"
 fi
 
-SESSION_ID="$1"
-DATE="$2"
+# Generate session_id if not provided. Uses unix timestamp + 6 random
+# alphanumeric chars to reduce collision risk across sessions on the
+# same day.
+if [ -z "$1" ]; then
+    TS=$(date +%s)
+    RAND=$(head -c 3 /dev/urandom | od -An -tx1 | tr -d ' \n')
+    SESSION_ID="auto-${TS}-${RAND}"
+else
+    SESSION_ID="$1"
+fi
+
 MODEL="${3:-GLM}"
 
 # Resolve repo root regardless of where this is invoked from.

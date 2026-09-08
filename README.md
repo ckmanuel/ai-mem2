@@ -22,6 +22,7 @@ learned during the session is committed and pushed back so it persists.
 | `sessions/`      | Per-session summaries (one file per session, append-only).            |
 | `scripts/`       | `pre_commit_scan.py` (local hook), `scan_repo.py` (CI scanner), `install_hooks.sh` (hook install), `new_session.sh` (transcript bootstrap). |
 | `.github/workflows/secret-scan.yml` | CI backstop: runs scanner on every push and PR. |
+| `.github/workflows/transcript-check.yml` | CI backstop: flags pushes that don't update a transcript file. |
 
 ## Conventions
 
@@ -71,11 +72,13 @@ already in remote history and must be rotated immediately.
 
 ## Recommended opening prompt for a new session
 
-Paste this at the start of every new chat session. Replace
-`<session_id>` with the actual session ID from the IM gateway
-metadata, and `<YYYY-MM-DD>` with today's date. If the PAT lives in
-an env var on your machine (recommended), reference it as
-`$GH_PAT` instead of pasting the literal token.
+Paste this at the start of every new chat session. If the PAT lives in
+an env var on your machine (recommended), reference it as `$GH_PAT`
+instead of pasting the literal token.
+
+If the chat provider gives you IM gateway metadata with a session_id
+(chat.z.ai does), note the session_id for use in step 4 below. If not
+(Claude.ai, ChatGPT), step 4 will auto-generate one.
 
 ```
 I want you to use my private GitHub repository as persistent memory
@@ -90,11 +93,13 @@ At the beginning of this session:
    .git/config).
 3. Read context.md FIRST. It has a "FIRST ACTION AT SESSION START"
    block at the top.
-4. Run ./scripts/new_session.sh <session_id> <YYYY-MM-DD> [model]
-   to create this session's transcript file.
-5. Read preferences.md, decisions.md, and any relevant project /
-   session files.
-6. Use the relevant information as context for this session.
+4. Run ./scripts/new_session.sh to create this session's transcript
+   file. Args are all optional:
+     - If session_id is available (IM gateway metadata), pass it.
+     - If not, run with no args; the script auto-generates one.
+   - Read preferences.md, decisions.md, and any relevant project /
+     session files.
+5. Use the relevant information as context for this session.
 
 During the conversation:
 - Save important information about my preferences, projects, decisions,

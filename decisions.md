@@ -16,6 +16,43 @@ Entry template:
 - **Status:** active | superseded by <YYYY-MM-DD entry>
 -->
 
+## 2026-09-08 — new_session.sh auto-generation + honest forcing-status logging
+- **Context:** Fifth critique (exchange 30). Critic pointed out that
+  `new_session.sh` required a session_id that IM gateway metadata
+  provides, but Claude.ai and other chat providers don't. Without
+  that metadata, the script either failed or got a made-up
+  placeholder. Critic honestly logged it as an open item rather
+  than claiming it was solved.
+- **Two issues separated:**
+  - **Issue 1 (fixable): script requires session_id that may not
+    exist.** FIXED. All args to `new_session.sh` are now optional.
+    If session_id is empty, the script auto-generates
+    `auto-<unix_timestamp>-<random6>`. If date is empty, uses today.
+    Tested with four scenarios (no args, explicit session_id only,
+    all explicit Claude, existing file).
+  - **Issue 2 (not truly fixable): nothing forces the assistant to
+    run the script.** OPEN, HONESTLY LOGGED. The opening prompt,
+    FIRST ACTION block, and the script all make it easier and more
+    prominent. None of them make it impossible to skip. LLMs are
+    non-deterministic. Added CI check at
+    `.github/workflows/transcript-check.yml` that flags pushes
+    which don't modify a transcript file. This makes the failure
+    visible rather than silent, but it's after the fact — the
+    session is already over by the time CI runs.
+- **Why three layers still aren't "forcing":**
+  - Opening prompt: strongest signal, but users may abbreviate.
+  - context.md FIRST ACTION block: reinforces after clone, but the
+    assistant has to actually read it.
+  - Script: makes execution one command, but the assistant has to
+    decide to run it.
+  - CI check: catches the failure after push, can't prevent it.
+  - This is the honest state. No system can truly force an LLM
+    to take an action before its first response. The best we can
+    do is make skipping hard to do accidentally, and make skips
+    visible when they happen.
+- **Status:** active. Issue 1 fixed. Issue 2 openly logged as
+  partially mitigated but not solved.
+
 ## 2026-09-08 — Make new-session transcript creation automatic (Option 3)
 - **Context:** User asked whether new sessions that clone the git repo
   auto-create the verbatim transcript file. Honest answer: no. The
