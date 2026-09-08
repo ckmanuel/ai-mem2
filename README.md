@@ -97,12 +97,19 @@ At the beginning of this session:
 During the conversation:
 - Save important information about my preferences, projects, decisions,
   and ongoing work.
-- Append each exchange to this session's transcript file at
-  chat_history/<model>/<session_id>-<YYYY-MM-DD>.md (verbatim, with
-  trace_id, redact any token or secret).
+- For each user message you receive, IMMEDIATELY append the user
+  message to the transcript file BEFORE working on the response.
+  Use: echo "the user's message" | ./scripts/begin_exchange.sh <trace_id>
+  Then fill in your reply when done. If you skip this step, the
+  exchange is lost forever if the session truncates.
+- Append each exchange to chat_history/<model>/<session_id>-<YYYY-MM-DD>.md
+  (verbatim, with trace_id, redact any token or secret).
 - Update existing memories instead of creating duplicates.
 - After meaningful work, commit and push using an ephemeral credential
   helper (token from env var, never persisted to .git/config).
+- Pre-commit hook blocks commits that change memory files without
+  updating the transcript. Bypass with --no-verify only for genuinely
+  conversation-independent commits (README typos, script refactors).
 
 NEVER save, commit, or expose my GitHub token inside the repository.
 The "never commit token" rule overrides "verbatim transcript."
