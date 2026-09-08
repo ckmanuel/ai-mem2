@@ -17,6 +17,9 @@ what changed.
 
 ## CRITICAL: Append user message to transcript IMMEDIATELY
 
+**Read `TRANSCRIPT_REMINDER.md` if you haven't already.** It's the
+persistent failsafe for this step — survives context truncation.
+
 When you receive a user message, append it to the transcript file
 **before** you start working on the response. Don't wait until the
 end. If you skip this and the session ends or context truncates, the
@@ -66,13 +69,47 @@ CI also warns on push when memory files change without a transcript
 update. Doesn't block, but makes the failure visible.
 
 ## Current Focus
-- Fresh repo. Awaiting first task.
+- Transcript enforcement implemented (pre-commit block, CI warning,
+  begin_exchange.sh). Awaiting user's next task.
 
 ## Open Threads
-_None._
+- `preferences.md` still has unfilled sections: Tooling & Environment,
+  Document & Output Preferences, Coding Style. Capture these as they
+  emerge.
+- The PAT cannot create new repos (no Administration scope). Not a
+  blocker since we're staying in one repo.
+- **Recurring pattern: PAT pasted in plaintext at session start.**
+  Now observed in at least two Claude sessions (claude-app-mobile-9f3a2c
+  and the 2026-09-08 auto-* session). The opening prompt template
+  supports `$GH_PAT` env var reference, but the user keeps pasting the
+  literal token instead. Each occurrence is a live credential exposed
+  in chat logs. Keep flagging it and recommending rotation after the
+  session; consider making the env-var option more prominent in the
+  README opening prompt.
 
 ## Recently Completed
-_None yet._
+_(Capped at 5 entries. Older items live in `decisions.md` and the
+verbatim transcript at `chat_history/`.)_
+
+- 2026-09-08 — Fixed `begin_exchange.sh` "Illegal number: 0" bug.
+  Root cause: `grep -c` prints "0" and exits 1 on zero matches; the
+  `|| echo 0` fallback fired anyway and duplicated the output to
+  "0\n0", breaking arithmetic. Fixed with `|| true` + `${EXISTING:-0}`.
+  Verified against a clean fresh-transcript case.
+- 2026-09-08 — Transcript enforcement: pre_commit_transcript_check.py
+  blocks commits when memory files change without transcript update.
+  begin_exchange.sh appends placeholder exchange entry. CI warning
+  tightened. context.md workflow updated to append user message at
+  start of response. install_hooks.sh now calls both scanners.
+  Implemented on both repos.
+- 2026-09-08 — Critique round 4 hardening: prune uses git commit date,
+  embeddings warns on non-conforming transcripts, PATH false-positive
+  regex fixed, update_index uses first user + last assistant, MIT
+  LICENSE added, RETRIEVAL.md added, 16-test suite, CI INDEX.md
+  staleness check, README "Files outside the repo" section.
+- 2026-09-08 — Retrieval tools: prune_chat_history.sh, update_index.py,
+  embeddings.py. Tested on 3 transcripts. INDEX.md generated.
+- 2026-09-08 — Clean-slate fork `ckmanuel/ai-mem2` set up.
 
 ## Blockers
 _None._
