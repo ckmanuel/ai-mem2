@@ -29,6 +29,17 @@ This file holds:
 - PAT rotates daily (user-side).
 - Deliverables stay local unless explicitly pushed.
 - One repo for memory + transcript (no separate repo).
+- **Parallel sessions on the same repo: risky.** Push rejections
+  happen when both sessions commit and push concurrently (one wins,
+  the other gets rejected and must `git pull --rebase`). Merge
+  conflicts happen when both sessions edit the same shared memory
+  file (`context.md`, `preferences.md`, `decisions.md`,
+  `knowledge.md`, `README.md`). Transcript files don't conflict
+  because each session has a unique session_id. Practical guidance:
+  pull before every push, don't edit the same shared file from two
+  sessions simultaneously, never force-push. Cleanest pattern for
+  parallel work: one session writes, the other reads-only. Or
+  separate repos per project.
 
 ## Tools Worth Knowing About
 Adjacent tools the user has asked about or that may be useful in future
