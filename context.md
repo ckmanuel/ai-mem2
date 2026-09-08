@@ -22,6 +22,17 @@ cloning because it points to what is actively being worked on right now.
 5. Report commit hash + what changed at the end of the response.
 
 ## Open Threads
+- **UNRESOLVED — chat_history.md vs sessions/.** External critique
+  flagged overlap and drift risk. Verbatim was a user choice. Three
+  options on the table (cut, keep+hook, keep+document). Awaiting user
+  decision. See `decisions.md`.
+- **UNRESOLVED — scope creep in unified repo.** `.gitignore` doesn't
+  cover PDFs, DOCX, XLSX, PNGs, scripts/, download/. First large
+  deliverable bloats history. Three options on the table. Awaiting
+  user decision. See `decisions.md`.
+- **UNRESOLVED — token discipline process fixes.** Three proposed:
+  pre-commit hook, 90-day rotation, move PAT out of prompt into env
+  var. Awaiting user pick. See `decisions.md`.
 - `preferences.md` still has unfilled sections: Tooling & Environment,
   Document & Output Preferences, Coding Style. Capture these as they
   emerge.
@@ -41,6 +52,9 @@ cloning because it points to what is actively being worked on right now.
 - 2026-09-08 — Deleted `scripts/redact_token.py` (leak vector). Added
   "no manufactured criticism" rule to feedback tone. Scoped git sync
   protocol. Logged decisions.
+- 2026-09-08 — External critique of repo structure. Logged three open
+  decisions: chat_history/sessions overlap, scope creep risk, token
+  discipline process fixes.
 
 ## Blockers / Waiting On
 _None yet._

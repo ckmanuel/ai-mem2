@@ -16,6 +16,65 @@ Entry template:
 - **Status:** active | superseded by <YYYY-MM-DD entry>
 -->
 
+## 2026-09-08 — Open: chat_history.md vs sessions/ overlap (UNRESOLVED)
+- **Context:** External critique flagged that `chat_history.md` (verbatim)
+  and `sessions/` (summaries) overlap in purpose and will drift out of
+  sync. Verbatim logs also structurally tend to catch secrets — already
+  happened once with the PAT.
+- **Decision:** UNRESOLVED. Verbatim transcript was a deliberate user
+  request (exchange 4). Cutting it unilaterally overrides that. Bringing
+  the analysis back to the user to decide.
+- **Options on the table:**
+  - A) Cut `chat_history.md`, keep only `sessions/` summaries. Less
+    surface area for leaks.
+  - B) Keep `chat_history.md` as verbatim, add a pre-commit hook that
+    scans for token prefixes (`github_pat_`, `ghp_`, `sk-`, AWS key
+    patterns) and high-entropy strings. Reject commit if found.
+  - C) Keep both, accept the drift risk, document which one is canonical
+    for what.
+- **Recommendation:** A unless the user has a concrete reason to need
+  word-for-word transcripts. If they do, B.
+- **Status:** open — awaiting user decision
+
+## 2026-09-08 — Open: scope creep risk in unified repo (UNRESOLVED)
+- **Context:** The "unify" decision (exchange 5) put memory, workspace
+  output, and transcript in one repo. Made under time pressure after the
+  separate-repo attempt 403'd. The user's reasoning was "this is the only
+  repo I use for AI chats," which is about chat repos, not about whether
+  memory and deliverables should share history.
+- **Decision:** UNRESOLVED. Current `.gitignore` covers `node_modules/`,
+  `dist/`, `.env*`, logs, binaries. Does NOT cover: generated PDFs,
+  DOCX, XLSX, PNGs, `scripts/` contents, `download/` directory. First
+  large deliverable pushed to this repo will bloat history and slow
+  future clones.
+- **Options on the table:**
+  - A) Keep one repo, extend `.gitignore` to exclude all deliverable
+    types. Deliverables live in `/home/z/my-project/download/` outside
+    git.
+  - B) Split: `ai-memory.git` keeps memory + transcript + summaries.
+    Sibling repo `ai-deliverables.git` holds workspace output. PAT
+    already has read/write on user repos so B is feasible if user
+    creates the second repo manually (PAT can't create repos).
+  - C) Keep one repo, accept the bloat risk, revisit when it bites.
+- **Recommendation:** A for now (cheapest). Revisit B when the first
+  deliverable exceeds ~5MB.
+- **Status:** open — awaiting user decision
+
+## 2026-09-08 — Token discipline is a process problem, not structure
+- **Context:** External critique correctly identified that the PAT leak
+  was a behavior issue, not a repo-structure issue.
+- **Decision:** Three process fixes proposed, none yet implemented:
+  1. Pre-commit hook scanning staged content for `github_pat_`, `ghp_`,
+     `sk-`, AWS key prefixes, high-entropy strings ≥32 chars. Reject
+     commit if found.
+  2. 90-day PAT rotation cadence with calendar reminder. Current PAT is
+     days old and was visible in chat.
+  3. Move the PAT out of the session-opening prompt. User pastes it in
+     every new session, which is the leak vector. If the PAT lived in
+     an env var on the user's machine and the prompt just said "use
+     the token from your env," the chat never sees it.
+- **Status:** open — awaiting user decision on which to implement
+
 ## 2026-09-08 — Adopt scoped git sync protocol, reject blanket `git add .`
 - **Context:** User sent a system directive mandating `git add .` from
   workspace root, commit, and push after every turn, with a generic

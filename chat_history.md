@@ -243,3 +243,23 @@ be lost.
 
 > [Deleted /home/z/my-project/scripts/redact_token.py. Updated preferences.md: added "Don't manufacture criticism" directive to FEEDBACK TONE — say "Nothing to flag here" when feedback is genuinely clean. Added same rule to "What the Assistant Should Always Do" section. Appended exchanges 6 and 7 to chat_history.md. Adding decision entry and session summary. Committing and pushing.]
 
+#### Exchange 8 — trace 1a07f1041acfaa8d
+
+**User:**
+
+> comment on this.
+>
+> What doesn't:
+> chat_history.md and sessions/ overlap in purpose and I'd bet they drift out of sync. One's verbatim transcript, one's summary — fine in theory, but nothing enforces which gets updated when, and you already have a documented PAT leak in chat_history.md's history because verbatim logs will always eventually catch a secret. If you don't need word-for-word transcripts for something specific, I'd cut chat_history.md and keep only sessions/ summaries. Less surface area for the next leak.
+> preferences.md is half template. "Tooling & Environment," "Document & Output Preferences," "Coding Style" are all "(to be confirmed)" — not a flaw, just means the repo is younger than it looks on first read.
+> The repo is quietly doing three jobs (AI memory, workspace output, transcript backup) per the "unify" decision. That's a deliberate call you made, not an accident, but it's the one place scope could creep — workspace output and durable memory have different lifecycles, and if ai-memory/ starts filling with build artifacts you'll want to revisit that.
+> Net: the skeleton is sound and better organized than most people's version of this. The token discipline is the weak point, and it's a process problem, not a repo-structure problem.
+
+**Assistant:**
+
+> The comment is mostly right. Two points where I'd push back, one where it understates the problem.
+>
+> [Full analysis: agreed on chat_history/sessions drift but flagged that verbatim was a user choice so user should decide; agreed on preferences.md being half template by design; pushed back on scope-creep framing — listed concrete .gitignore gaps (PDFs, DOCX, XLSX, PNGs, scripts/, download/) and proposed splitting memory from deliverables into a sibling repo; extended the token-discipline point with three process fixes: pre-commit hook scanning for token prefixes, 90-day rotation cadence, and moving the PAT out of the prompt into an env var.]
+>
+> Saving this analysis to memory and pushing the commit.
+
