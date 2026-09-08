@@ -48,7 +48,7 @@ failure visible, not prevented.
    `chat_history/<model>/<session_id>-<YYYY-MM-DD>.md`. Verbatim, with
    trace_id. Redact any PAT or secret that appears in user/assistant text.
 3. Update `decisions.md` if a decision was made. Update `context.md` if
-   the focus shifted. Add a session summary if the session is wrapping.
+   the focus shifted.
 4. `git add -A` inside `ai-memory/` only. Commit with a descriptive
    message. Push using ephemeral credential helper (token from env var).
 5. Report commit hash + what changed at the end of the response.
@@ -58,8 +58,14 @@ failure visible, not prevented.
    ("push X", "back up X to GitHub"). Use `git add -f <file>` to
    override .gitignore.
 7. **New session = new transcript file.** At the start of a new session,
-   create `chat_history/<model>/<new_session_id>-<today>.md`. Don't
-   append to a previous session's file.
+   create `chat_history/<model>/<new_session_id>-<today>.md` via
+   `./scripts/new_session.sh`. Don't append to a previous session's
+   file.
+
+**Note on summaries:** `sessions/` directory was removed in favor of
+the verbatim transcript + `decisions.md` + `context.md` Recently
+Completed. Three sources of truth, each with a distinct role, no
+overlap. See `decisions.md` for the rationale.
 
 ## Open Threads
 - **RESOLVED (partially, see caveat) — Claude sessions skip FIRST ACTION.**
@@ -146,6 +152,16 @@ failure visible, not prevented.
   PDF push/pull works: created test PDF, force-added (`git add -f`
   overrides .gitignore), pushed at hash 0299bae, cloned fresh, PDF
   landed with readable content, cleaned up at hash caafa48.
+- 2026-09-08 — Auto-generate session_id in `new_session.sh` when IM
+  gateway metadata is unavailable (Claude.ai, ChatGPT, etc.). Added
+  CI transcript-check workflow that flags pushes which don't modify
+  a transcript file. Honest logging: this fixes the missing-args
+  issue, doesn't truly force the assistant to run the script.
+- 2026-09-08 — Fifth critique identified `sessions/` directory as
+  structural redundancy with `chat_history/`. Dropped `sessions/`
+  entirely. Three sources of truth now: verbatim transcript,
+  `decisions.md`, `context.md` Recently Completed. No overlap.
+  Original "keep both" decision superseded.
 
 ## Blockers / Waiting On
 _None yet._

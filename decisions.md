@@ -16,6 +16,40 @@ Entry template:
 - **Status:** active | superseded by <YYYY-MM-DD entry>
 -->
 
+## 2026-09-08 — Drop sessions/ directory; supersede "keep both" decision
+- **Context:** Fifth external critique identified `sessions/`
+  (summaries) as structural redundancy with `chat_history/`
+  (verbatim transcripts). Two sources of truth for the same
+  conversation. The original critique (exchange 8) flagged this
+  same overlap; the decision at the time was "keep both, accept
+  drift risk." Fifth critique correctly challenged that decision.
+- **Decision:** Drop `sessions/` entirely. Three sources of truth
+  remain, each with a distinct role:
+  1. **`chat_history/<model>/<session_id>-<date>.md`** — verbatim
+     transcript. Authoritative record of what was said.
+  2. **`decisions.md`** — durable decisions and rationale.
+     Append-only. Cross-session.
+  3. **`context.md` Recently Completed** — short-term pointer list
+     for the most recent few sessions. Auto-rotates as items age
+     out.
+- **Supersedes:** the original "keep both, accept drift" decision
+  from the chat_history/sessions overlap discussion (exchange 8).
+  That decision was wrong. Maintenance burden wasn't worth the
+  convenience. Drift was inevitable. Two summaries of the same
+  content (`sessions/*.md` AND `context.md` Recently Completed)
+  was duplication, not defense-in-depth.
+- **Rationale:** Three sources, three roles, no overlap. Faster
+  scanning is sacrificed at the loss of compact summaries, but
+  the trade is worth it. Scanning the verbatim transcript is
+  slower than scanning a summary, but the transcript is
+  authoritative. The summary was a derivative that lagged and
+  sometimes lied.
+- **Migration:** `git rm -r sessions/`. Six summary files deleted.
+  Their content was already encoded in `context.md` Recently
+  Completed and `decisions.md`. No information lost.
+- **Status:** active — `sessions/` removed, workflow updated,
+  README updated.
+
 ## 2026-09-08 — new_session.sh auto-generation + honest forcing-status logging
 - **Context:** Fifth critique (exchange 30). Critic pointed out that
   `new_session.sh` required a session_id that IM gateway metadata

@@ -19,7 +19,6 @@ learned during the session is committed and pushed back so it persists.
 | `decisions.md`   | Important decisions and their rationale (append-only log).             |
 | `context.md`     | Current work-in-progress, open threads, and short-term focus.         |
 | `chat_history/`  | Verbatim transcripts, one file per session, organized by AI model. See `chat_history/README.md`. |
-| `sessions/`      | Per-session summaries (one file per session, append-only).            |
 | `scripts/`       | `pre_commit_scan.py` (local hook), `scan_repo.py` (CI scanner), `install_hooks.sh` (hook install), `new_session.sh` (transcript bootstrap). |
 | `.github/workflows/secret-scan.yml` | CI backstop: runs scanner on every push and PR. |
 | `.github/workflows/transcript-check.yml` | CI backstop: flags pushes that don't update a transcript file. |
@@ -27,9 +26,12 @@ learned during the session is committed and pushed back so it persists.
 ## Conventions
 
 - **Concise over verbose** — each file should be skimmable in under 2 minutes.
-- **Append-only where possible** — `decisions.md` and `sessions/` are append-only.
+- **Append-only where possible** — `decisions.md` is append-only.
 - **No secrets** — never store API keys, tokens, passwords, or PII here.
 - **Update in place for** `preferences.md`, `projects.md`, `context.md`.
+- **Three sources of truth, no overlap:** verbatim transcript
+  (`chat_history/`), durable decisions (`decisions.md`), immediate
+  focus (`context.md`). No parallel summary files — they drift.
 - **Dates** use ISO 8601 (`YYYY-MM-DD`).
 - **One topic per file** — split files rather than overloading them.
 
