@@ -40,6 +40,16 @@ This file holds:
   sessions simultaneously, never force-push. Cleanest pattern for
   parallel work: one session writes, the other reads-only. Or
   separate repos per project.
+- **Alternating sessions (serial with handoff) works cleanly.**
+  Session A active, B idle. A commits + pushes, signals done. B
+  pulls, becomes active, A goes idle. No push conflicts, no merge
+  conflicts, no `.git/index.lock` contention. Each session uses its
+  own workspace clone. Handoff signal can be a chat message or just
+  behavioral agreement. Subtle gotcha: when B becomes active after
+  A's commits, B's LLM context is frozen at whatever it last saw.
+  B must pull AND re-read `context.md` + `decisions.md` + relevant
+  transcript files before working, otherwise it operates on stale
+  state.
 
 ## Tools Worth Knowing About
 Adjacent tools the user has asked about or that may be useful in future
