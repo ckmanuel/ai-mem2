@@ -16,6 +16,29 @@ Entry template:
 - **Status:** active | superseded by <YYYY-MM-DD entry>
 -->
 
+## 2026-09-08 — Deliverables: only pushed when explicitly requested
+- **Context:** User asked whether deliverables (PDFs, DOCX, XLSX, PNGs)
+  could live in git without bloating context. After clarification,
+  user decided to keep current setup: deliverables stay on workspace
+  local disk, only pushed to GitHub when explicitly requested.
+- **Decision:** Deliverables are NOT pushed automatically. Default is
+  local-only in `/home/z/my-project/download/`. To back up a specific
+  deliverable to GitHub, user says "push X" and assistant runs
+  `git add -f <file>` (override .gitignore), commits, pushes.
+- **Alternatives considered:** Automatic push of all deliverables
+  (rejected — bloats repo history with binaries); Git LFS (rejected
+  for now — scope/cost); separate `ai-deliverables` repo (deferred
+  until volume justifies it); `git commit --amend` + force-push for
+  updates (rejected as default habit — history rewriting is a
+  footgun even solo).
+- **Rationale:** Simplest default. No surprise bloat. User keeps
+  control. If a deliverable matters enough to back up, the user
+  knows it and asks. Volume stays low until proven otherwise.
+- **Revisit trigger:** If user starts asking to push deliverables
+  more than once per session on average, revisit the second-repo
+  or LFS options.
+- **Status:** active
+
 ## 2026-09-08 — Resolved: keep chat_history.md verbatim + add pre-commit hook
 - **Context:** External critique flagged that `chat_history.md` (verbatim)
   and `sessions/` (summaries) overlap in purpose and will drift out of

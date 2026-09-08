@@ -273,4 +273,81 @@ be lost.
 
 > [Built pre-commit hook at scripts/pre_commit_scan.py. Hook scans staged content for known token prefixes (github_pat_, ghp_, gho_, ghs_, ghu_, sk-ant-, sk-, AIza, AKIA, AGPA/AIDA/AROA/ANPA/AIPA/ASIA, xox[abp]-, glpat-, private key blocks, JWTs, password=/api_key=/token= assignments) and high-entropy strings (>= 32 chars, Shannon entropy >= 4.0 bits/char). False positives filtered: md5, sha1, sha256, uuids, version strings, urls. Installed shim at .git/hooks/pre-commit that delegates to the script. Tested with fake github_pat_ and high-entropy random string — both blocked correctly. Extended .gitignore to exclude all deliverable types (PDF, DOC/DOCX, XLS/XLSX, PPT/PPTX, PNG, JPG, JPEG, GIF, SVG, WEBP, BMP, ICO, TIFF, HEIC, PSD, AI, Sketch, Figma, EPUB, MOBI, AZW, MP3, WAV, FLAC, AAC, OGG, WEBM, AVI, MKV, SQLite/DB). Marked all three open decisions as resolved in decisions.md. Rotation cadence and PAT-out-of-prompt remain user-side actions.]
 
+#### Exchange 10 — trace 1a07f1aa1c8d528d
+
+**User:**
+
+> so files are not saved in github?
+
+**Assistant:**
+
+> Correct on the binaries. Clarifying the full picture.
+>
+> **Memory repo files: saved to GitHub.** README, preferences, projects, decisions, context, chat_history.md, sessions/, scripts/pre_commit_scan.py, .gitignore.
+>
+> **Deliverables (PDFs, DOCX, XLSX, PNGs, etc.): NOT in GitHub.** They live only in /home/z/my-project/download/ on this workspace's local disk. The .gitignore blocks them from the memory repo.
+>
+> **Why this split:** memory and transcript are small text files that belong in version control. Deliverables are large binaries that would bloat repo history and slow every future clone. Different lifecycles, different storage.
+>
+> **The catch:** /home/z/my-project/download/ is workspace-local. If the workspace resets, those files are gone. No GitHub backup for them right now.
+>
+> Three options offered: (1) second repo for deliverables (user creates manually, PAT can't), (2) force-add specific deliverables into ai-memory.git with `git add -f`, (3) keep deliverables local only.
+
+#### Exchange 11 — trace 1a07f1c6957a53c1
+
+**User:**
+
+> is it possible to keep the files in git but are not scanned, rather only pushed when called? so it doesn't consume in context?
+
+**Assistant:**
+
+> Yes. Three layers to the answer.
+>
+> **The hook already skips binaries.** pre_commit_scan.py checks for null bytes in the first 1024 bytes; if found, the file is skipped before scanning. PDFs, DOCX, XLSX, PNGs all have null bytes.
+>
+> **Files in git don't load into chat context.** Context window is built from chat messages and files explicitly read with the Read tool. A PDF committed to the repo sits in git history. Not visible unless read.
+>
+> **What you can do right now:** `git add -f path/to/file.pdf` then commit and push. The -f overrides .gitignore. File gets committed, pushed, version-controlled. Won't be scanned. Won't appear in context unless explicitly read.
+>
+> **The tradeoff:** every update stores a new copy in history. 5MB PDF updated 10 times = 50MB in repo history. Clone times degrade.
+>
+> Alternatives offered: Git LFS (GitHub free tier 1GB+1GB/month, requires scope and local install), separate repo (user creates manually).
+
+#### Exchange 12 — trace 1a07f1f273ddb949
+
+**User:**
+
+> in layperson term?
+
+**Assistant:**
+
+> Simplified version. Memory files go to GitHub automatically. Deliverables stay on workspace only unless specifically asked to push. If you want a specific PDF in GitHub, tell me, I'll push it. Catch: every update keeps the old version too. Repo gets bigger, slower to clone. Cleaner option if doing this often: second GitHub repo just for files.
+
+#### Exchange 13 — trace 1a07f2354c1de6fd
+
+**User:**
+
+> is it not possible file overrides? instead of always pushing new?
+
+**Assistant:**
+
+> Yes, possible. But it's a tradeoff.
+>
+> **The "override" version:** `git commit --amend` or `git rebase` rewrites the last commit instead of adding a new one. Old version is gone from history. Repo stays small.
+>
+> **The cost:** this rewrites history. If anyone else has cloned, or if you've pushed before, you need `git push --force` to overwrite the remote. Force-push is dangerous in shared repos. Fine here because solo, but bad habit elsewhere.
+>
+> Recommendation: don't put deliverables in git routinely. Tell me to push a specific file when you want it backed up. If updating, push as new commit. Repo will grow but realistically need hundreds of updates before it matters.
+
+#### Exchange 14 — trace 1a07f20f8a6feb65
+
+**User:**
+
+> ok. just keep it as is. only pushed when explicitly said.
+
+**Assistant:**
+
+> [Acknowledged. Logging decision: deliverables only pushed when explicitly requested. Updating chat_history.md, decisions.md, context.md. Committing and pushing.]
+
+
 

@@ -20,6 +20,11 @@ cloning because it points to what is actively being worked on right now.
 4. `git add -A` inside `ai-memory/` only. Commit with a descriptive
    message. Push using ephemeral credential helper (token from env var).
 5. Report commit hash + what changed at the end of the response.
+6. **Deliverables (PDFs, DOCX, XLSX, PNGs, etc.) are NOT pushed
+   automatically.** Default is local-only in
+   `/home/z/my-project/download/`. Only push when user explicitly asks
+   ("push X", "back up X to GitHub"). Use `git add -f <file>` to
+   override .gitignore.
 
 ## Open Threads
 - **RESOLVED — chat_history.md vs sessions/.** Keep verbatim + pre-commit
@@ -58,6 +63,9 @@ cloning because it points to what is actively being worked on right now.
 - 2026-09-08 — Resolved all three open decisions. Built and installed
   pre-commit hook at `scripts/pre_commit_scan.py`. Extended `.gitignore`
   for all deliverable types. Hook tested with fake tokens — works.
+- 2026-09-08 — Clarified deliverable backup policy with user. Final
+  decision: deliverables stay local-only by default, pushed to GitHub
+  only when user explicitly asks. Logged decision, updated workflow.
 
 ## Blockers / Waiting On
 _None yet._
