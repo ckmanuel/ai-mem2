@@ -371,6 +371,53 @@ be lost.
 >
 > [Implementing: install_hooks.sh, threshold raise, README update, re-test. Logging to chat_history, decisions, context. Committing and pushing.]
 
+#### Exchange 16 — trace 1a07f2c530b988a1
+
+**User:**
+
+> what do you mean by rotate the PAT?
+
+**Assistant:**
+
+> Generate a new token on GitHub, replace the old one everywhere you use it, delete the old one.
+>
+> 1. github.com → Settings → Developer settings → Personal access tokens → Fine-grained tokens.
+> 2. Generate new token with same scope (read+write on ckmanuel/ai-memory).
+> 3. Copy new token. Store somewhere safe (password manager, env var, not chat prompt).
+> 4. Find old token. Click Revoke or Delete.
+> 5. Old token dead. New token still secret.
+>
+> Why bother: current token visible in plaintext in chat at least twice. If chat logs leak, token is theirs. Rotating kills that exposure instantly.
+>
+> Why I can't do it: generating PAT requires logging into GitHub as you. I can only use the PAT to act on repos.
+>
+> Should also fix the prompt-pasting issue eventually: move PAT to env var on your machine. Separate fix. Rotation first.
+
+#### Exchange 17 — trace 1a07f2dd0281de21
+
+**User:**
+
+> is it pushed in the git?
+
+**Assistant:**
+
+> No. Four checks, all clean: (1) current files in repo, no PAT; (2) full git history (every commit's diff), zero matches; (3) every blob in every commit scanned, no matches; (4) nine commits in history, none contain the PAT.
+>
+> The PAT you pasted in chat lives only in the chat itself, not in the repo. When I wrote your messages into chat_history.md, I redacted the token to `<PAT REDACTED - never commit token to repo>` before pushing. The pre-commit hook now catches it automatically if it ever tries to land there again.
+>
+> What's still exposed: the chat logs themselves. Whatever backend stores this conversation has the PAT in plaintext. If those logs leak, the token leaks. That's the part rotation fixes. Generate a new token, revoke the old one, the leaked copy becomes useless.
+
+#### Exchange 18 — trace 1a07f2f3e7ed735d
+
+**User:**
+
+> ohhh ok. no problem the PAT is always changed daily.
+
+**Assistant:**
+
+> [Acknowledged. PAT rotates daily on the user's side. Rotation cadence question closed. Updating decisions.md to mark token discipline as effectively resolved. Updating context.md. Committing and pushing.]
+
+
 
 
 

@@ -41,7 +41,10 @@ Entry template:
      character will still false-positive; user can `--no-verify` past
      those, and we extend FALSE_POSITIVES as patterns emerge.
 - **Status:** active — install script + threshold tuning implemented.
-  Token discipline still partial, awaiting user action.
+  Token discipline effectively resolved: user confirms PAT rotates
+  daily on their side. The remaining "move PAT out of prompt into
+  env var" suggestion is a convenience, not a security issue, since
+  any leaked PAT dies within 24 hours.
 
 ## 2026-09-08 — Deliverables: only pushed when explicitly requested
 - **Context:** User asked whether deliverables (PDFs, DOCX, XLSX, PNGs)
