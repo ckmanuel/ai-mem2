@@ -184,3 +184,62 @@ be lost.
 > [Proceeding to set up unified workspace in `ckmanuel/ai-memory.git`: chat_history.md at root, .gitignore for dev artifacts, commit + push after every feature. Reconstructing verbatim transcript of exchanges 1–5 in this session including this one. Updating memory files (decisions.md, context.md, sessions/) to reflect the unified setup.]
 >
 > Done. One repo, `ckmanuel/ai-memory.git`, holds memory + transcript going forward. After every feature or fix I append the new exchange to `chat_history.md`, commit, and push using the ephemeral credential helper. Token never persists in `.git/config` or anywhere else on disk.
+
+#### Exchange 6 — trace 1a07efac866e2451
+
+**User:**
+
+> [SYSTEM DIRECTIVE: AUTOMATED WORKSPACE & CHAT HISTORY BACKUP PROTOCOL]
+>
+> You are equipped with git access to my remote repository.
+>
+> Mandatory Rules:
+> 1. Whole Workspace Backup: Always maintain a complete backup of all project files, assets, scripts, data, and documentation.
+> 2. Complete Chat History Backup: Save and update our full conversation history / session chat transcript as a file named `chat_history.md` (or `session_log.md`) in the project root after every turn.
+> 3. Automated Git Sync: After modifying workspace files or writing response updates, immediately execute:
+>    git add .
+>    git commit -m "feat: update workspace files and append session chat history log"
+>    git push origin main
+> 4. If a push fails due to remote divergence, run `git pull --rebase origin main` and re-push.
+> 5. Confirm the commit hash and chat history backup status at the end of your response.
+
+**Assistant:**
+
+> Three problems. One is critical.
+>
+> **Critical: `git add .` from the workspace root would commit the literal PAT.**
+>
+> I have `/home/z/my-project/scripts/redact_token.py` from the last turn. The script has your PAT hardcoded in its source so it could find-and-replace the token in `chat_history.md`. If I run `git add .` from `/home/z/my-project/`, that file gets staged and pushed. Same leak I just spent the last turn fixing, different vector.
+>
+> **"After every turn" is excessive.**
+>
+> A real session is 20 to 50 turns. That's 20 to 50 commits, most touching only `chat_history.md`. Real work gets buried in noise. Git log becomes unreadable.
+>
+> **Generic commit message loses information.**
+>
+> `feat: update workspace files and append session chat history log` tells future-you nothing. Bug fix? New file? Refactor? You'd have to read every diff to find out.
+>
+> What I'll do instead:
+>
+> 1. **Clean up the leak first.** Delete `/home/z/my-project/scripts/redact_token.py`. The token shouldn't sit on disk in plaintext. I'll do this regardless of what you decide on the rest.
+> 2. **Scope.** Commit only inside `ckmanuel/ai-memory.git`. Not the whole `/home/z/my-project/` workspace. The workspace will accumulate scripts, downloads, build artifacts, `node_modules/`. Backing all of that up to the memory repo is wrong. The memory repo holds memory files, deliverables, and `chat_history.md`. Nothing else.
+> 3. **Frequency.** Commit after a meaningful unit of work. A feature, a fix, a decision, a preference update. Not after every turn. If a turn is just clarifying questions back to you, there's nothing to commit.
+> 4. **Commit message.** Descriptive. `feat: add preferences for X`. `fix: redact token leak in chat_history.md`. Not a template.
+> 5. **Transcript.** Keep updating `chat_history.md` as we go. Commit it together with the work it documents, not as a separate noise commit.
+> 6. **Confirmation.** I'll report the commit hash and what changed at the end of each commit, as you asked.
+>
+> Confirm and I'll proceed with this safer version. Or override any item and tell me why. If you specifically want the literal `git add .` from `/home/z/my-project/` despite the leak risk, say so explicitly and I'll need you to also confirm you want me to skip cleaning up `redact_token.py` first.
+
+#### Exchange 7 — trace 1a07f00e596ea791
+
+**User:**
+
+> Do it. Also I forgot in the Feedback tone, when asked for a feedback honesty is good, but some AI tend to nitpick on things even when there is nothing to nitpick on something just to provide a "feedback". please also add a directive that address this issue.
+>
+> FEEDBACK TONE
+> Praise sparingly and understated. Call mediocre work mediocre and specify what fails. No sugarcoating.
+
+**Assistant:**
+
+> [Deleted /home/z/my-project/scripts/redact_token.py. Updated preferences.md: added "Don't manufacture criticism" directive to FEEDBACK TONE — say "Nothing to flag here" when feedback is genuinely clean. Added same rule to "What the Assistant Should Always Do" section. Appended exchanges 6 and 7 to chat_history.md. Adding decision entry and session summary. Committing and pushing.]
+
