@@ -1,6 +1,6 @@
 # ai-mem2
 
-Persistent memory for cross-session chat with AI agents. 
+Persistent memory for cross-session chat with AI agents.
 
 ## Structure
 
@@ -15,7 +15,98 @@ Persistent memory for cross-session chat with AI agents.
 | `scripts/` | `pre_commit_scan.py`, `scan_repo.py`, `install_hooks.sh`, `new_session.sh`, `sync_before_work.sh`, `prune_chat_history.sh`, `update_index.py`, `embeddings.py`, `requirements.txt`. |
 | `.github/workflows/` | `secret-scan.yml`, `transcript-check.yml`, `size-check.yml`. |
 
+## Setup (first time)
+
+If you're forking or cloning this repo to start your own persistent
+memory, follow these steps in order.
+
+### 1. Create a private GitHub repository
+
+Go to [github.com/new](https://github.com/new):
+- Repository name: `ai-memory` (or any name you want)
+- Visibility: **Private** (important — your memory contains personal context)
+- Don't initialize with README (this repo already has one)
+- Click "Create repository"
+
+### 2. Generate a GitHub Personal Access Token (PAT)
+
+Go to [github.com/settings/tokens](https://github.com/settings/tokens)
+→ "Fine-grained tokens" → "Generate new token":
+
+- **Token name:** `ai-memory access` (or any descriptive name)
+- **Expiration:** 90 days (rotate regularly)
+- **Repository access:** "Only select repositories" → pick the repo
+  you just created
+- **Repository permissions:**
+  - **Contents:** Read and write (required for clone/push/pull)
+  - **Workflows:** Read and write (required for CI workflows to push)
+- Click "Generate token"
+- **Copy the token immediately.** You won't see it again.
+
+### 3. (Recommended) Store the PAT in an env var
+
+Don't paste the token into chat prompts. Store it in your shell:
+
+```sh
+echo 'export GH_PAT="github_pat_YOUR_TOKEN_HERE"' >> ~/.bashrc
+# or ~/.zshrc on macOS
+source ~/.bashrc
+```
+
+Now you can reference `$GH_PAT` in any command or prompt without the
+literal token appearing in chat logs, shell history, or git config.
+
+### 4. Clone the repo and install the pre-commit hook
+
+```sh
+git clone "https://github.com/YOUR_USERNAME/ai-memory.git"
+cd ai-memory
+./scripts/install_hooks.sh
+```
+
+The hook scans every commit for leaked tokens and blocks them. Until
+it runs, local commits won't be scanned.
+
+### 5. Use the opening prompt at the start of every new chat session
+
+Paste this at the start of every new chat with your AI agent:
+
+```
+I want you to use my private GitHub repository as persistent memory
+across chat sessions.
+
+GitHub repository: https://github.com/YOUR_USERNAME/ai-memory.git
+GitHub Personal Access Token: use $GH_PAT env var
+
+At the beginning of this session:
+1. Clone the repository to a working directory.
+2. Reset the remote URL to clean HTTPS (do NOT leave the token in
+   .git/config).
+3. Read context.md FIRST. It has a "FIRST ACTION AT SESSION START"
+   block at the top.
+4. Run ./scripts/new_session.sh to create this session's transcript
+   file. Args are all optional — auto-generates session_id if needed.
+5. Read preferences.md, decisions.md, and any relevant project /
+   session files.
+6. Use the relevant information as context for this session.
+
+During the conversation:
+- Save important information about my preferences, projects, decisions,
+  and ongoing work.
+- Append each exchange to this session's transcript file at
+  chat_history/<model>/<session_id>-<YYYY-MM-DD>.md (verbatim, with
+  trace_id, redact any token or secret).
+- Update existing memories instead of creating duplicates.
+- After meaningful work, commit and push using an ephemeral credential
+  helper (token from env var, never persisted to .git/config).
+
+NEVER save, commit, or expose my GitHub token inside the repository.
+The "never commit token" rule overrides "verbatim transcript."
+```
+
 ## Setup after cloning
+
+If you already have the repo and just need to set up a fresh clone:
 
 ```sh
 ./scripts/install_hooks.sh
@@ -74,3 +165,15 @@ rotate it immediately.
 Recommended: store the PAT in an env var (`export GH_PAT=...`) and
 reference it as `$GH_PAT` in the opening prompt. Chat never sees the
 token.
+
+## Credits
+
+The persistent memory pattern (private GitHub repo + opening prompt +
+per-session transcripts) is based on the
+[Persistent Memory Guide](https://persistent-memory-deploy.vercel.app/)
+by [Rommark.Dev](https://rommark.dev), built with Z.ai.
+
+The pre-commit secret scanner, CI workflows, retrieval tools
+(prune / index / embeddings), alternating-session sync, and
+`new_session.sh` auto-generation were added by the assistant
+(GLM on chat.z.ai) in collaboration with the user.
