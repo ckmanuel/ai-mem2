@@ -16,6 +16,51 @@ Entry template:
 - **Status:** active | superseded by <YYYY-MM-DD entry>
 -->
 
+## 2026-09-08 — Add knowledge.md; reject conversations/ from external guide
+- **Context:** User shared two external guides (CLAW blog tutorial at
+  claw.rommark.dev, persistent-memory guide at
+  persistent-memory-deploy.vercel.app). Asked to add whatever is
+  relevant.
+- **Assessment of guides:**
+  - **CLAW tutorial:** mostly reproduces what we have, with less
+    secure defaults. Recommends `git remote set-url origin
+    https://ghp_...@...` (embedding PAT in `.git/config` — we
+    rejected this in exchange 6 as a security hole). Recommends
+    `git add .` and generic commit messages (we pushed back on
+    this in exchange 6). Nothing new to adopt.
+  - **Persistent Memory guide:** opening prompt template is
+    essentially identical to what we use. File structure proposed:
+    `preferences.md`, `projects.md`, `conversations/`,
+    `knowledge.md`, `README.md`.
+- **Decision:**
+  - **Adopt:** `knowledge.md`. New file for facts the user shares
+    (domain expertise, stack, team, environment, conventions).
+    Previously we had no equivalent — `preferences.md` held stable
+    rules but not facts, `decisions.md` held decisions but not
+    facts. `knowledge.md` fills the gap. Created with template
+    sections: Domain & Work Context, Stack & Tools, Team &
+    Organization, Environment, Conventions & Workflow.
+  - **Reject:** `conversations/` directory. We already removed
+    `sessions/` (per-session summaries) in the previous exchange
+    because it was structural redundancy with `chat_history/`.
+    Adding `conversations/` for the same purpose would undo that
+    decision. The critic's point from exchange 32 still holds: two
+    sources of truth for the same conversation drift.
+  - **Adopt:** troubleshooting section in README. Common failure
+    modes (memory not updating, token rejected, repo not found,
+    false positives in hook, transcript not created, rate limit).
+    Pulled the "be explicit when asking agent to remember" note
+    from the memory guide's troubleshooting section.
+- **Memory file routing clarified in `context.md`:**
+  - Facts → `knowledge.md`
+  - Preferences → `preferences.md`
+  - Decisions → `decisions.md`
+  - Current focus → `context.md`
+  - Projects → `projects.md`
+  - Verbatim record → `chat_history/`
+- **Status:** active — `knowledge.md` added, README updated,
+  troubleshooting section added, routing clarified.
+
 ## 2026-09-08 — Drop sessions/ directory; supersede "keep both" decision
 - **Context:** Fifth external critique identified `sessions/`
   (summaries) as structural redundancy with `chat_history/`

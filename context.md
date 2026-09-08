@@ -48,7 +48,9 @@ failure visible, not prevented.
    `chat_history/<model>/<session_id>-<YYYY-MM-DD>.md`. Verbatim, with
    trace_id. Redact any PAT or secret that appears in user/assistant text.
 3. Update `decisions.md` if a decision was made. Update `context.md` if
-   the focus shifted.
+   the focus shifted. Update `knowledge.md` if the user shared a fact
+   (domain info, stack, team, environment). Update `preferences.md`
+   if a stable preference emerged.
 4. `git add -A` inside `ai-memory/` only. Commit with a descriptive
    message. Push using ephemeral credential helper (token from env var).
 5. Report commit hash + what changed at the end of the response.
@@ -61,6 +63,15 @@ failure visible, not prevented.
    create `chat_history/<model>/<new_session_id>-<today>.md` via
    `./scripts/new_session.sh`. Don't append to a previous session's
    file.
+
+**Memory file routing — where new info goes:**
+- **Facts** (domain, stack, team, environment) → `knowledge.md`
+- **Preferences** (stable rules for how the assistant should behave)
+  → `preferences.md`
+- **Decisions** (durable choices with rationale) → `decisions.md`
+- **Current focus** (what's being worked on right now) → `context.md`
+- **Projects** (active/past work with status) → `projects.md`
+- **Verbatim record** (what was said) → `chat_history/`
 
 **Note on summaries:** `sessions/` directory was removed in favor of
 the verbatim transcript + `decisions.md` + `context.md` Recently
@@ -162,6 +173,13 @@ overlap. See `decisions.md` for the rationale.
   entirely. Three sources of truth now: verbatim transcript,
   `decisions.md`, `context.md` Recently Completed. No overlap.
   Original "keep both" decision superseded.
+- 2026-09-08 — Reviewed two external guides (CLAW blog tutorial,
+  persistent-memory-deploy.vercel.app). Tutorial mostly reproduces
+  what we have, with less secure defaults (PAT in `.git/config`).
+  Memory guide proposed `knowledge.md` for facts and `conversations/`
+  for summaries. Added `knowledge.md` (useful — we had no facts file).
+  Rejected `conversations/` (we already removed `sessions/` for the
+  same redundancy reason). Added troubleshooting section to README.
 
 ## Blockers / Waiting On
 _None yet._

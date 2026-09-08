@@ -15,6 +15,7 @@ learned during the session is committed and pushed back so it persists.
 |------------------|------------------------------------------------------------------------|
 | `README.md`      | This file — overview and usage conventions.                            |
 | `preferences.md` | User preferences: communication style, tools, formatting, language.     |
+| `knowledge.md`   | Facts and domain info the user has shared (stack, team, environment).    |
 | `projects.md`    | Active and past projects, with status and key links.                  |
 | `decisions.md`   | Important decisions and their rationale (append-only log).             |
 | `context.md`     | Current work-in-progress, open threads, and short-term focus.         |
@@ -116,3 +117,36 @@ During the conversation:
 NEVER save, commit, or expose my GitHub token inside the repository.
 The "never commit token" rule overrides "verbatim transcript."
 ```
+
+## Troubleshooting
+
+**Memory not updating.** If the agent says memory is loaded but nothing
+gets saved, be explicit. Say "Save this to my memory" or "Update
+`knowledge.md` with this fact" or "Add this decision to `decisions.md`."
+The agent may interpret "remember this" as "acknowledge this" without
+writing it down.
+
+**Token rejected on push.** Check GitHub → Settings → Developer
+settings → Personal access tokens. Verify the token is still valid and
+has `Contents: Read and write` (and `Workflows` scope if pushing
+workflow files). If expired, generate a new one and update the env var
+or paste it in the next session's opening prompt.
+
+**Repository not found.** Verify the URL is `ckmanuel/ai-memory.git`
+and the PAT has access to that specific repo. Fine-grained PATs are
+scoped to specific repos — a PAT for one repo won't work on another.
+
+**Pre-commit hook blocks a false positive.** Use `git commit --no-verify`
+to bypass. Document the bypass in the commit message so future-you
+knows why. If the same false positive recurs, extend
+`FALSE_POSITIVES` in `scripts/pre_commit_scan.py`.
+
+**Transcript file not created at session start.** Run
+`./scripts/new_session.sh` with no args — it auto-generates a
+session_id. If the session already produced exchanges, backfill them
+into the transcript file retroactively. Log the gap in `decisions.md`.
+
+**Rate limit exceeded.** GitHub allows 5000 authenticated API
+requests/hour. Memory updates are typically minimal (a few commits per
+session). If you hit the limit, something is wrong — check for
+runaway scripts or repeated clone/push loops.
