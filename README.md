@@ -1,7 +1,6 @@
 # ai-mem2
 
-Persistent memory for cross-session chat with AI agents. Forked from
-`ckmanuel/ai-memory` with session-specific content stripped.
+Persistent memory for cross-session chat with AI agents. 
 
 ## Structure
 
