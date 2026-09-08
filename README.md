@@ -1,6 +1,6 @@
 # ai-memory
 
-Persistent long-term memory for cross-session chat with Claude / GLM on chat.z.ai.
+Persistent long-term memory for cross-session chat with AI Agents.
 
 ## Purpose
 
