@@ -16,6 +16,26 @@ Entry template:
 - **Status:** active | superseded by <YYYY-MM-DD entry>
 -->
 
+## 2026-09-08 — Adopt explicit writing voice and style rules
+- **Context:** User provided a detailed spec for how the assistant should
+  write — favoring natural human thought over polished AI-prose, with
+  targeted guardrails against common weak habits.
+- **Decision:** Apply the spec as the primary writing-voice preference for
+  every response. Store it in `preferences.md`. Default to Analysis Mode
+  (evidence leads) unless the user asks for an opinion, in which case be
+  blunt with no softening.
+- **Alternatives considered:** Treat the spec as session-only (rejected —
+  too valuable to lose between sessions); store as a separate `voice.md`
+  file (rejected — better to keep a single source of truth in
+  `preferences.md` so it's always read first).
+- **Rationale:** The spec is precise and self-aware — it explicitly says
+  uniform polish works against natural voice. Embedding it as the default
+  ensures every future session inherits this voice without re-prompting.
+- **Implications:** All future responses follow these rules. Periods over
+  em dashes. No filler, no meta-commentary. Praise sparingly. Call
+  mediocre work mediocre. Push back on weak reasoning.
+- **Status:** active
+
 ## 2026-09-08 — Establish GitHub-backed persistent memory
 - **Context:** chat.z.ai has no native cross-session memory; the assistant
   loses all context between sessions.
