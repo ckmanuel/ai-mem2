@@ -35,10 +35,12 @@ cloning because it points to what is actively being worked on right now.
   exclude all deliverable file types. Deliverables live in
   `/home/z/my-project/download/` outside git. Force-add only with
   `git add -f` when a binary truly needs version control here.
-- **RESOLVED — token discipline.** Pre-commit hook implemented.
-  User confirms PAT rotates daily on their side, so any leaked
-  PAT dies within 24 hours. The "move PAT out of prompt into env
-  var" suggestion remains a convenience, not a security issue.
+- **PARTIALLY RESOLVED — token discipline.** Pre-commit hook done.
+  PAT rotates daily on user side (damage control). The actual fix
+  — move PAT to env var so opening prompt says "use $GH_PAT"
+  instead of pasting the literal value — remains a recommended
+  user-side action. Would collapse exposure window to zero. See
+  `decisions.md` for the distinction.
 - `preferences.md` still has unfilled sections: Tooling & Environment,
   Document & Output Preferences, Coding Style. Capture these as they
   emerge.

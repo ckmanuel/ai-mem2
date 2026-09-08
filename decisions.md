@@ -41,10 +41,25 @@ Entry template:
      character will still false-positive; user can `--no-verify` past
      those, and we extend FALSE_POSITIVES as patterns emerge.
 - **Status:** active — install script + threshold tuning implemented.
-  Token discipline effectively resolved: user confirms PAT rotates
-  daily on their side. The remaining "move PAT out of prompt into
-  env var" suggestion is a convenience, not a security issue, since
-  any leaked PAT dies within 24 hours.
+  Token discipline status refined after third critique (exchange 19):
+  - **Pre-commit hook: implemented.** Catches tokens that land in
+    staged content through any path.
+  - **PAT rotation: user-side, daily.** Caps blast radius of any
+    specific leak to 24 hours. Does NOT remove the leak pattern
+    itself — a fresh token is exposed in every new session's
+    opening prompt.
+  - **Move PAT to env var: actual fix, not just convenience.**
+    If `export GH_PAT=...` lives in the user's shell rc file and
+    the opening prompt says "use $GH_PAT" instead of pasting the
+    literal value, the chat never sees the token. Exposure window
+    collapses to zero regardless of session length. Rotation
+    manages damage of the current pattern; env var removes the
+    pattern's flaw entirely. Recommended user-side action.
+  - **Earlier framing was wrong.** I previously called env var a
+    "convenience, not a security issue" because daily rotation
+    made any specific leak time-limited. That conflated damage
+    control with prevention. Rotation = damage control. Env var =
+    prevention. Both have value. They are not equivalent.
 
 ## 2026-09-08 — Deliverables: only pushed when explicitly requested
 - **Context:** User asked whether deliverables (PDFs, DOCX, XLSX, PNGs)

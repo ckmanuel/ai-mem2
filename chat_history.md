@@ -417,6 +417,33 @@ be lost.
 
 > [Acknowledged. PAT rotates daily on the user's side. Rotation cadence question closed. Updating decisions.md to mark token discipline as effectively resolved. Updating context.md. Committing and pushing.]
 
+#### Exchange 19 — trace 1a07f34b8d3258c9
+
+**User:**
+
+> they said
+>
+> The actual fix for next time: if the token lived in an env var on your machine and the opening prompt said "use $GH_PAT" instead of the literal value, I'd never see it, and the exposure window collapses to zero regardless of session length. That's the difference I was drawing — rotation manages the damage of the current pattern, moving it to an env var removes the pattern's flaw entirely.
+
+**Assistant:**
+
+> They're right. I've been treating rotation and env-var as equivalent. They're not. Rotation caps the blast radius. Env var removes the explosion.
+>
+> Right now, every new session opens with you pasting the literal PAT into the chat. The token enters my context window. It enters whatever logs store the conversation. It sits there for the session's duration, plus however long the logs persist. Rotation means a leaked token dies in 24 hours, but a fresh one is leaked every new session. The pattern leaks. Rotation just limits each leak's lifespan.
+>
+> If the PAT lived in an env var on your machine (export GH_PAT=github_pat_... in ~/.zshrc or ~/.bashrc) and the opening prompt said "use $GH_PAT to clone ckmanuel/ai-memory.git," then I never see the token. The shell expands the env var before git runs. The chat prompt contains the literal string $GH_PAT, not the value. Zero exposure. Session length becomes irrelevant. The flaw in the pattern is gone.
+>
+> What changes if you implement env var:
+> 1. Opening prompt template changes. Instead of pasting literal token, you write: "Use the PAT in my $GH_PAT env var to clone ckmanuel/ai-memory.git."
+> 2. Clone command: `git clone "https://${GH_PAT}@github.com/ckmanuel/ai-memory.git"` — env var expanded by shell at runtime, literal token never in any script or command I write.
+> 3. Push command: `git -c credential.helper='!f() { echo "username=ckmanuel"; echo "password=$GH_PAT"; }; f' push origin main` — same pattern, env var at runtime.
+> 4. Chat never sees the token. Not in messages, not in command output, not in any file I write.
+>
+> What stays the same: daily rotation still happens on your side, still good practice. Defense in depth. Pre-commit hook stays as backstop for accidental token landings through other paths.
+>
+> [Logging this distinction to memory. The critic's framing overrides my earlier "convenience, not security" framing. Updating decisions.md, context.md. Committing and pushing.]
+
+
 
 
 
