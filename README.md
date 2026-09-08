@@ -20,7 +20,8 @@ learned during the session is committed and pushed back so it persists.
 | `context.md`     | Current work-in-progress, open threads, and short-term focus.         |
 | `chat_history.md`| Verbatim transcript of chat sessions (model -> session -> exchanges).   |
 | `sessions/`      | Per-session summaries (one file per session, append-only).            |
-| `scripts/`       | Tooling. Currently: `pre_commit_scan.py` (secret scanner).            |
+| `scripts/`       | `pre_commit_scan.py` (local hook), `scan_repo.py` (CI scanner), `install_hooks.sh` (install). |
+| `.github/workflows/secret-scan.yml` | CI backstop: runs scanner on every push and PR. |
 
 ## Conventions
 
@@ -45,16 +46,25 @@ learned during the session is committed and pushed back so it persists.
 
 ### Installing the pre-commit hook on a fresh clone
 
-`.git/hooks/` is not version-controlled, so a fresh clone does not include
-the hook shim. After cloning, run:
+**The gap, stated bluntly:** `.git/hooks/` is not version-controlled.
+A fresh clone does not have the hook. Every fresh clone ships
+unprotected until a human runs the install script. There is no way
+around this — git deliberately does not allow repos to ship executable
+hooks, because that would let any cloned repo run arbitrary code on
+the user's machine.
+
+**Local protection (pre-commit):** run this once after cloning:
 
 ```sh
 ./scripts/install_hooks.sh
 ```
 
-This creates `.git/hooks/pre-commit` and makes it executable. The scanner
-itself (`scripts/pre_commit_scan.py`) is version-controlled and travels
-with the repo. Re-running the install script is safe.
+Creates `.git/hooks/pre-commit` and makes it executable. Re-runs are
+safe. Until this runs, your local commits will not be scanned.
 
-Without this step, commits you make locally will not be scanned. The
-hook only protects clones where it has been explicitly installed.
+**CI backstop (post-push):** a GitHub Actions workflow at
+`.github/workflows/secret-scan.yml` runs `scripts/scan_repo.py` on
+every push and PR. This catches secrets that slipped past a missing
+local hook. Different threat model — it catches leaks after they hit
+remote history, not before. If CI fails on a push, the secret is
+already in remote history and must be rotated immediately.

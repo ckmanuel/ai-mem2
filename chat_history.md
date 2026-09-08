@@ -443,6 +443,31 @@ be lost.
 >
 > [Logging this distinction to memory. The critic's framing overrides my earlier "convenience, not security" framing. Updating decisions.md, context.md. Committing and pushing.]
 
+#### Exchange 20 — trace 1a07f37b3da93bad
+
+**User:**
+
+> they also said.
+>
+> install_hooks.sh is real but still not wired to run automatically. I confirmed this fresh clone has no .git/hooks/pre-commit installed — I had to invoke the scanner manually to test it. The script fixed the install experience (one command instead of a heredoc), not the install gap. Every fresh clone, including the one I'm sitting in right now, ships unprotected until a human remembers to run ./scripts/install_hooks.sh. The README honestly says this ("only protects clones where it has been explicitly installed") but the decision log's framing edges toward "fixed" when it's really "easier to fix, still not automatic."
+
+**Assistant:**
+
+> They're right. The script made installation easier. It didn't make it automatic. Every fresh clone is still unprotected until someone remembers to run it.
+>
+> Five options considered:
+>
+> 1. `post-checkout` hook via `.gitconfig` template — requires modifying global git config on user's machine. Same problem as install_hooks.sh, just at a different layer.
+> 2. Wrapper script that does clone+install in one step — user still has to remember to use the wrapper instead of plain `git clone`.
+> 3. **GitHub Actions CI check** — runs `pre_commit_scan.py` against every push. Catches secrets after push, not before. Different threat model: repo history protection rather than local commit protection. But covers the "fresh clone, no local hook, committed a secret" case.
+> 4. `git config --global core.hooksPath` — one-time user setup that protects every repo afterwards. Powerful but still requires user action.
+> 5. **Accept the gap honestly.** Document that local protection requires the install step. Add CI check as defense-in-depth. Stop pretending the install script closes the gap.
+>
+> Honest answer: option 5, combined with option 3 (CI check). No way to make a fresh clone automatically have local hooks without user action. Git deliberately doesn't allow repos to ship executable hooks — security feature. If repos could ship hooks that ran on clone, any cloned repo could run arbitrary code. That's why `.git/hooks/` isn't version-controlled in the first place.
+>
+> [Adding GitHub Actions workflow at .github/workflows/secret-scan.yml as defense-in-depth. Updating README to be blunt about the install gap. Correcting decisions.md framing from "fixed" to "easier to fix, still not automatic; CI backstop added."]
+
+
 
 
 

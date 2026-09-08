@@ -40,26 +40,30 @@ Entry template:
      false positive class eliminated. Base64 without a breaking prefix
      character will still false-positive; user can `--no-verify` past
      those, and we extend FALSE_POSITIVES as patterns emerge.
-- **Status:** active — install script + threshold tuning implemented.
-  Token discipline status refined after third critique (exchange 19):
-  - **Pre-commit hook: implemented.** Catches tokens that land in
-    staged content through any path.
-  - **PAT rotation: user-side, daily.** Caps blast radius of any
-    specific leak to 24 hours. Does NOT remove the leak pattern
-    itself — a fresh token is exposed in every new session's
-    opening prompt.
-  - **Move PAT to env var: actual fix, not just convenience.**
-    If `export GH_PAT=...` lives in the user's shell rc file and
-    the opening prompt says "use $GH_PAT" instead of pasting the
-    literal value, the chat never sees the token. Exposure window
-    collapses to zero regardless of session length. Rotation
-    manages damage of the current pattern; env var removes the
-    pattern's flaw entirely. Recommended user-side action.
-  - **Earlier framing was wrong.** I previously called env var a
-    "convenience, not a security issue" because daily rotation
-    made any specific leak time-limited. That conflated damage
-    control with prevention. Rotation = damage control. Env var =
-    prevention. Both have value. They are not equivalent.
+- **Status:** refined after fourth critique (exchange 20).
+  - **Pre-commit hook: implemented, but install gap is real.**
+    `scripts/install_hooks.sh` reduces install friction from
+    copy-paste-heredoc to one command. It does NOT make install
+    automatic. Every fresh clone ships without the hook until a
+    human runs the install script. Git deliberately does not allow
+    repos to ship executable hooks — security feature, not bug.
+    Earlier framing that edged toward "fixed" was wrong. Correct
+    framing: easier to fix, still not automatic.
+  - **CI backstop: implemented.** Added `.github/workflows/secret-scan.yml`
+    that runs `scripts/scan_repo.py` on every push and PR. Different
+    threat model: catches leaks post-push rather than pre-commit.
+    Makes leaks visible rather than silent. If a leak slips past
+    the missing local hook, the CI check flags it on GitHub. Still
+    requires rotation of any leaked secret since the commit is
+    already in remote history by the time CI runs.
+  - **Five options considered for closing the gap automatically.**
+    See `chat_history.md` exchange 20 for the full list. None of
+    them remove the need for one-time user action. The honest
+    answer is: document the gap, add CI as defense-in-depth,
+    stop pretending install_hooks.sh closes it.
+  - **Token discipline:** unchanged from exchange 19 refinement.
+    Pre-commit hook + CI backstop + daily PAT rotation (damage
+    control) + env var (prevention, recommended user-side action).
 
 ## 2026-09-08 — Deliverables: only pushed when explicitly requested
 - **Context:** User asked whether deliverables (PDFs, DOCX, XLSX, PNGs)
