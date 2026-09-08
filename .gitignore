@@ -52,6 +52,47 @@ Thumbs.db
 *.tar.gz
 *.rar
 
+# Deliverables — these live in /home/z/my-project/download/ outside git.
+# Memory repo holds text-based files only. Force-add with `git add -f`
+# only when a binary truly needs to be version-controlled here.
+*.pdf
+*.docx
+*.doc
+*.xlsx
+*.xls
+*.pptx
+*.ppt
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.webp
+*.bmp
+*.ico
+*.tiff
+*.heic
+*.psd
+*.ai
+*.sketch
+*.fig
+*.epub
+*.mobi
+*.azw
+*.azw3
+*.mp3
+*.wav
+*.flac
+*.aac
+*.ogg
+*.webm
+*.avi
+*.mkv
+*.sqlite
+*.db
+*.sqlite3
+*.accdb
+
 # Local-only working dirs
 .scratch/
 tmp/

@@ -22,24 +22,24 @@ cloning because it points to what is actively being worked on right now.
 5. Report commit hash + what changed at the end of the response.
 
 ## Open Threads
-- **UNRESOLVED — chat_history.md vs sessions/.** External critique
-  flagged overlap and drift risk. Verbatim was a user choice. Three
-  options on the table (cut, keep+hook, keep+document). Awaiting user
-  decision. See `decisions.md`.
-- **UNRESOLVED — scope creep in unified repo.** `.gitignore` doesn't
-  cover PDFs, DOCX, XLSX, PNGs, scripts/, download/. First large
-  deliverable bloats history. Three options on the table. Awaiting
-  user decision. See `decisions.md`.
-- **UNRESOLVED — token discipline process fixes.** Three proposed:
-  pre-commit hook, 90-day rotation, move PAT out of prompt into env
-  var. Awaiting user pick. See `decisions.md`.
+- **RESOLVED — chat_history.md vs sessions/.** Keep verbatim + pre-commit
+  hook. Hook implemented at `scripts/pre_commit_scan.py`, invoked by
+  `.git/hooks/pre-commit`. Tested, both token-prefix and high-entropy
+  detection work.
+- **RESOLVED — scope creep in unified repo.** Extended `.gitignore` to
+  exclude all deliverable file types. Deliverables live in
+  `/home/z/my-project/download/` outside git. Force-add only with
+  `git add -f` when a binary truly needs version control here.
+- **PARTIAL — token discipline.** Pre-commit hook implemented and
+  tested. Two remaining user-side actions:
+  - Rotate current PAT now (visible in chat earlier this session).
+  - Move PAT out of opening prompt into env var on user's machine.
+    See `decisions.md` for the how-to.
 - `preferences.md` still has unfilled sections: Tooling & Environment,
   Document & Output Preferences, Coding Style. Capture these as they
   emerge.
 - The PAT cannot create new repos (no Administration scope). Not a
   blocker since we're staying in one repo.
-- User has not yet rotated the PAT after the near-miss in exchange 5.
-  Strongly recommended.
 
 ## Next Actions
 - Wait for the user's actual task.
@@ -55,6 +55,9 @@ cloning because it points to what is actively being worked on right now.
 - 2026-09-08 — External critique of repo structure. Logged three open
   decisions: chat_history/sessions overlap, scope creep risk, token
   discipline process fixes.
+- 2026-09-08 — Resolved all three open decisions. Built and installed
+  pre-commit hook at `scripts/pre_commit_scan.py`. Extended `.gitignore`
+  for all deliverable types. Hook tested with fake tokens — works.
 
 ## Blockers / Waiting On
 _None yet._

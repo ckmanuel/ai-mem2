@@ -16,64 +16,64 @@ Entry template:
 - **Status:** active | superseded by <YYYY-MM-DD entry>
 -->
 
-## 2026-09-08 — Open: chat_history.md vs sessions/ overlap (UNRESOLVED)
+## 2026-09-08 — Resolved: keep chat_history.md verbatim + add pre-commit hook
 - **Context:** External critique flagged that `chat_history.md` (verbatim)
   and `sessions/` (summaries) overlap in purpose and will drift out of
-  sync. Verbatim logs also structurally tend to catch secrets — already
-  happened once with the PAT.
-- **Decision:** UNRESOLVED. Verbatim transcript was a deliberate user
-  request (exchange 4). Cutting it unilaterally overrides that. Bringing
-  the analysis back to the user to decide.
-- **Options on the table:**
-  - A) Cut `chat_history.md`, keep only `sessions/` summaries. Less
-    surface area for leaks.
-  - B) Keep `chat_history.md` as verbatim, add a pre-commit hook that
-    scans for token prefixes (`github_pat_`, `ghp_`, `sk-`, AWS key
-    patterns) and high-entropy strings. Reject commit if found.
-  - C) Keep both, accept the drift risk, document which one is canonical
-    for what.
-- **Recommendation:** A unless the user has a concrete reason to need
-  word-for-word transcripts. If they do, B.
-- **Status:** open — awaiting user decision
+  sync. Verbatim logs also structurally tend to catch secrets.
+- **Decision:** Option B. Keep `chat_history.md` as verbatim (user's
+  stated preference, exchange 4). Add a pre-commit hook that scans
+  staged content for known token prefixes and high-entropy strings,
+  rejects commit if found. Hook lives at `scripts/pre_commit_scan.py`
+  (version-controlled) and is invoked by `.git/hooks/pre-commit` (shim,
+  not version-controlled).
+- **Implementation:** Hook scans for github_pat_, ghp_, gho_, ghs_,
+  ghu_, sk-ant-, sk-, AIza, AKIA, AGPA/AIDA/AROA/ANPA/AIPA/ASIA,
+  xox[abp]-, glpat-, private key blocks, JWTs, and password=/api_key=
+  /token= assignments. Also flags any string of length >= 32 with
+  Shannon entropy >= 4.0 bits/char. False positives filtered: md5,
+  sha1, sha256, uuids, version strings, urls. Tested with fake tokens
+  in both prefix and high-entropy categories — both blocked correctly.
+- **Bypass:** `git commit --no-verify` for confirmed false positives.
+  Documented in hook output.
+- **Status:** active — implemented 2026-09-08
 
-## 2026-09-08 — Open: scope creep risk in unified repo (UNRESOLVED)
+## 2026-09-08 — Resolved: extend .gitignore to exclude all deliverable types
 - **Context:** The "unify" decision (exchange 5) put memory, workspace
-  output, and transcript in one repo. Made under time pressure after the
-  separate-repo attempt 403'd. The user's reasoning was "this is the only
-  repo I use for AI chats," which is about chat repos, not about whether
-  memory and deliverables should share history.
-- **Decision:** UNRESOLVED. Current `.gitignore` covers `node_modules/`,
-  `dist/`, `.env*`, logs, binaries. Does NOT cover: generated PDFs,
-  DOCX, XLSX, PNGs, `scripts/` contents, `download/` directory. First
-  large deliverable pushed to this repo will bloat history and slow
+  output, and transcript in one repo. Risk: first large deliverable
+  (PDF, DOCX, XLSX, PNG) pushed to this repo bloats history and slows
   future clones.
-- **Options on the table:**
-  - A) Keep one repo, extend `.gitignore` to exclude all deliverable
-    types. Deliverables live in `/home/z/my-project/download/` outside
-    git.
-  - B) Split: `ai-memory.git` keeps memory + transcript + summaries.
-    Sibling repo `ai-deliverables.git` holds workspace output. PAT
-    already has read/write on user repos so B is feasible if user
-    creates the second repo manually (PAT can't create repos).
-  - C) Keep one repo, accept the bloat risk, revisit when it bites.
-- **Recommendation:** A for now (cheapest). Revisit B when the first
-  deliverable exceeds ~5MB.
-- **Status:** open — awaiting user decision
+- **Decision:** Option A. Keep one repo. Extend `.gitignore` to
+  exclude all deliverable file types: PDF, DOC/DOCX, XLS/XLSX,
+  PPT/PPTX, PNG, JPG, JPEG, GIF, SVG, WEBP, BMP, ICO, TIFF, HEIC,
+  PSD, AI, Sketch, Figma, EPUB, MOBI, AZW, MP3, WAV, FLAC, AAC, OGG,
+  WEBM, AVI, MKV, SQLite/DB. Deliverables live in
+  `/home/z/my-project/download/` outside git. Force-add with
+  `git add -f <file>` only when a binary truly needs version control
+  here.
+- **Revisit trigger:** If a deliverable exceeds ~5MB and genuinely
+  needs version control here, split into a sibling `ai-deliverables`
+  repo (Option B from the original analysis).
+- **Status:** active — implemented 2026-09-08
 
-## 2026-09-08 — Token discipline is a process problem, not structure
+## 2026-09-08 — Resolved: token discipline process fixes (partial)
 - **Context:** External critique correctly identified that the PAT leak
-  was a behavior issue, not a repo-structure issue.
-- **Decision:** Three process fixes proposed, none yet implemented:
-  1. Pre-commit hook scanning staged content for `github_pat_`, `ghp_`,
-     `sk-`, AWS key prefixes, high-entropy strings ≥32 chars. Reject
-     commit if found.
-  2. 90-day PAT rotation cadence with calendar reminder. Current PAT is
-     days old and was visible in chat.
-  3. Move the PAT out of the session-opening prompt. User pastes it in
-     every new session, which is the leak vector. If the PAT lived in
-     an env var on the user's machine and the prompt just said "use
-     the token from your env," the chat never sees it.
-- **Status:** open — awaiting user decision on which to implement
+  was a behavior issue, not a repo-structure issue. Three process fixes
+  proposed in exchange 8.
+- **Decision:**
+  1. **Pre-commit hook: IMPLEMENTED.** See decision above. Scans
+     staged content for known token prefixes and high-entropy strings.
+     Tested with fake tokens in both categories — both blocked.
+  2. **PAT rotation cadence: DEFERRED TO USER.** Recommend 90-day
+     rotation. Set a calendar reminder. Current PAT was visible in
+     chat during this session and should be rotated now regardless
+     of cadence.
+  3. **PAT out of prompt: DEFERRED TO USER.** Currently the user pastes
+     the PAT in every new session's opening message. If the PAT lived
+     in an env var on the user's machine (`export GH_PAT=...` in
+     `~/.zshrc` or `~/.bashrc`) and the prompt said "use $GH_PAT to
+     clone ckmanuel/ai-memory.git," the chat never sees the token.
+     Requires user-side setup; can't be done from the assistant side.
+- **Status:** partial — hook done, rotation and env var await user action
 
 ## 2026-09-08 — Adopt scoped git sync protocol, reject blanket `git add .`
 - **Context:** User sent a system directive mandating `git add .` from
