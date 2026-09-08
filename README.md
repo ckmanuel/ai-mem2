@@ -24,6 +24,7 @@ learned during the session is committed and pushed back so it persists.
 | `archive/`       | Older decision log entries moved here when `decisions.md` crosses ~20 entries or 25KB. Full rationale preserved. |
 | `.github/workflows/secret-scan.yml` | CI backstop: runs scanner on every push and PR. |
 | `.github/workflows/transcript-check.yml` | CI backstop: flags pushes that don't update a transcript file. |
+| `.github/workflows/size-check.yml` | CI backstop: warns when memory files cross size thresholds. |
 
 ## Conventions
 

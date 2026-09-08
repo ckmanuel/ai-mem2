@@ -21,6 +21,37 @@ Entry template:
 - **Status:** active | superseded by <YYYY-MM-DD entry>
 -->
 
+## 2026-09-08 — CI size-check workflow: warn (don't block) on bloat
+- **Context:** User asked if archiving is automatic. Honest answer:
+  no. Documentation says when to trim, but nothing enforces it. The
+  next session has to notice bloat and decide to archive. Same
+  forcing problem as the transcript step.
+- **What automatic would actually look like:** a script that checks
+  sizes, archives older entries when threshold crossed. Two problems
+  with full automation: (1) the script has to pick a split point
+  using a heuristic that may not match judgment; (2) CI can flag but
+  can't fix (or has to commit back, which is fragile).
+- **Decision:** Added `.github/workflows/size-check.yml` as a CI
+  warning layer. Doesn't auto-trim, doesn't block push. Just a
+  visible reminder that appears on GitHub Actions status when files
+  cross thresholds. The assistant sees the warning in the next
+  session's CI status and knows to trim.
+- **Thresholds:** `decisions.md` 25KB or 400 lines or 20 top-level
+  entries. `context.md` 15KB or 250 lines or 5 Recently Completed
+  entries. `preferences.md` 12KB or 300 lines. `knowledge.md` 12KB
+  or 300 lines. `README.md` 12KB or 250 lines. Tunable in the
+  workflow file.
+- **First version had a bug:** the section-count check for
+  `decisions.md` returned 0 because the file's title is at line 1
+  (`# Key Decisions`), not `## Key Decisions`. Decisions are top-
+  level `## ` entries. Fixed by counting `## ` lines directly
+  (excluding the template entry inside the HTML comment block).
+  Split into two helpers: `check_section` for top-level `## `
+  entries, `check_list_section` for `- ` items under a section
+  header.
+- **Status:** active — workflow implemented and tested locally,
+  README updated.
+
 ## 2026-09-08 — Lean trim: archive older decisions, cap context.md Recently Completed
 - **Context:** After 45 exchanges in one session, `decisions.md` had
   grown to 498 lines (28KB) and `context.md` Recently Completed had

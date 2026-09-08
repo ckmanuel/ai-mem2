@@ -1,0 +1,136 @@
+name: Size check
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  check_sizes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Warn if memory files cross size thresholds
+        run: |
+          set +e
+          WARN=0
+
+          check_file() {
+            local file="$1"
+            local max_bytes="$2"
+            local max_lines="$3"
+            local label="$4"
+
+            if [ ! -f "$file" ]; then
+              echo "SKIP: $file does not exist"
+              return
+            fi
+
+            local bytes=$(wc -c < "$file")
+            local lines=$(wc -l < "$file")
+
+            if [ "$bytes" -gt "$max_bytes" ]; then
+              echo "WARN: $file is $bytes bytes ($lines lines). Threshold: $max_bytes bytes."
+              echo "      $label"
+              WARN=1
+            elif [ "$lines" -gt "$max_lines" ]; then
+              echo "WARN: $file is $lines lines ($bytes bytes). Threshold: $max_lines lines."
+              echo "      $label"
+              WARN=1
+            else
+              echo "OK:   $file is $bytes bytes, $lines lines."
+            fi
+          }
+
+          check_section() {
+            # Count "## " entries in a markdown file (top-level decision entries).
+            local file="$1"
+            local max_entries="$2"
+            local label="$3"
+
+            if [ ! -f "$file" ]; then
+              echo "SKIP: $file does not exist"
+              return
+            fi
+
+            # Count "## " lines, excluding the template entry inside HTML comments.
+            local count=$(awk '
+              /^<!--/ { in_comment=1 }
+              /^-->/ { in_comment=0; next }
+              !in_comment && /^## / { count++ }
+              END { print count+0 }
+            ' "$file")
+
+            if [ "$count" -gt "$max_entries" ]; then
+              echo "WARN: $file has $count top-level entries. Threshold: $max_entries."
+              echo "      $label"
+              WARN=1
+            else
+              echo "OK:   $file has $count top-level entries."
+            fi
+          }
+
+          check_list_section() {
+            # Count "- " items under a "## " section header.
+            local file="$1"
+            local section_header="$2"
+            local max_entries="$3"
+            local label="$4"
+
+            if [ ! -f "$file" ]; then
+              echo "SKIP: $file does not exist"
+              return
+            fi
+
+            local count=$(awk -v sect="$section_header" '
+              $0 ~ "^## " sect { in_sect=1; next }
+              in_sect && /^## / { in_sect=0 }
+              in_sect && /^- / { count++ }
+              END { print count+0 }
+            ' "$file")
+
+            if [ "$count" -gt "$max_entries" ]; then
+              echo "WARN: $file '$section_header' has $count entries. Threshold: $max_entries."
+              echo "      $label"
+              WARN=1
+            else
+              echo "OK:   $file '$section_header' has $count entries."
+            fi
+          }
+
+          echo "=== Memory file size check ==="
+          echo ""
+
+          check_file "decisions.md" 25600 400 \
+            "Archive oldest entries to archive/decisions-<date-range>.md."
+
+          check_file "context.md" 15360 250 \
+            "Trim Recently Completed to 5 entries; older items live in decisions.md."
+
+          check_file "preferences.md" 12800 300 \
+            "Consider whether sections can be trimmed or split."
+
+          check_file "knowledge.md" 12800 300 \
+            "Consider splitting into domain-specific files."
+
+          check_file "README.md" 12800 250 \
+            "Consider whether sections can be tightened."
+
+          echo ""
+          echo "=== Section entry count check ==="
+          echo ""
+
+          check_list_section "context.md" "Recently Completed" 5 \
+            "Cap at 5 entries. Move older items to decisions.md or chat_history/."
+
+          check_section "decisions.md" 20 \
+            "When decisions.md crosses ~20 active entries or 25KB, archive the oldest batch."
+
+          echo ""
+          if [ "$WARN" -eq 1 ]; then
+            echo "RESULT: warnings above. Push is NOT blocked."
+            echo "Trim the flagged files in a follow-up commit when convenient."
+            exit 0
+          else
+            echo "RESULT: all files within thresholds."
+            exit 0
+          fi
