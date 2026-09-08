@@ -16,6 +16,29 @@ Entry template:
 - **Status:** active | superseded by <YYYY-MM-DD entry>
 -->
 
+## 2026-09-08 — Unify memory, workspace, and transcript in one repo
+- **Context:** User originally asked for a separate repo for workspace +
+  chat transcript backup. Then reversed course: only `ckmanuel/ai-memory`
+  is used for AI chats, so a second repo would fragment the setup.
+- **Decision:** Use `ckmanuel/ai-memory.git` as the single repo for memory
+  files, workspace output, and the verbatim chat transcript. No separate
+  `ai-workspace` repo.
+- **Alternatives considered:** Separate `ai-workspace` repo (rejected —
+  user wants one repo for all AI chat setup); PAT-embedded remote URL
+  (rejected — security hole, token in `.git/config`).
+- **Rationale:** One repo = one mental model. Easier to scan, easier to
+  clone fresh each session. The PAT already has read/write on this repo,
+  no scope escalation needed.
+- **Implications:**
+  - `chat_history.md` lives at repo root.
+  - `.gitignore` excludes `node_modules/`, build output, env files, logs,
+    large binaries, editor configs.
+  - After each feature or fix: append the new exchange to
+    `chat_history.md`, commit, push.
+  - Token pulled from env var at push time via ephemeral credential
+    helper. Never persisted to disk or `.git/config`.
+- **Status:** active
+
 ## 2026-09-08 — Adopt explicit writing voice and style rules
 - **Context:** User provided a detailed spec for how the assistant should
   write — favoring natural human thought over polished AI-prose, with

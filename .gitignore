@@ -1,0 +1,57 @@
+# Common dev artifacts that should never be committed to memory repo.
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+dist/
+build/
+out/
+.next/
+.nuxt/
+.turbo/
+.cache/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+env/
+.python-version
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Large binaries / media (case-by-case, force-add if needed)
+*.mp4
+*.mov
+*.zip
+*.tar.gz
+*.rar
+
+# Local-only working dirs
+.scratch/
+tmp/
