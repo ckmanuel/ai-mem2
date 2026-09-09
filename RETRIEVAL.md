@@ -85,8 +85,7 @@ When `embeddings.py search` returns results:
    file and read the whole exchange for context.
 2. **Cite the source.** When you tell the user what was said, include
    the trace_id or exchange number so they can verify:
-   > "In session `web-dbcfad74` (2026-09-08), exchange 19, you said
-   > that rotation is damage control and env var is prevention."
+   > "In a prior session, exchange N, you said X."
 3. **Don't trust the similarity score blindly.** A 0.7 match might
    be a tangent. Read the actual exchange before quoting it.
 4. **If no good matches, say so.** Don't fabricate. If the user asks

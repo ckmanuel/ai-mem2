@@ -156,12 +156,12 @@ def test_is_false_positive_uuid():
 
 
 def test_is_false_positive_url():
-    assert scanner.is_false_positive("https://github.com/ckmanuel/ai-memory.git")
+    assert scanner.is_false_positive("https://github.com/example/example.git")
 
 
 def test_is_false_positive_path():
-    assert scanner.is_false_positive("/home/z/my-project/scripts/redact_token.py")
-    assert scanner.is_false_positive("chat_history/GLM/web-dbcfad74-2026-09-08.md")
+    assert scanner.is_false_positive("/home/user/scripts/example_tool.py")
+    assert scanner.is_false_positive("chat_history/GLM/test-session-id-2026-01-01.md")
 
 
 def test_is_false_positive_version():

@@ -79,13 +79,12 @@ update. Doesn't block, but makes the failure visible.
 - The PAT cannot create new repos (no Administration scope). Not a
   blocker since we're staying in one repo.
 - **Recurring pattern: PAT pasted in plaintext at session start.**
-  Now observed in at least two Claude sessions (claude-app-mobile-9f3a2c
-  and the 2026-09-08 auto-* session). The opening prompt template
-  supports `$GH_PAT` env var reference, but the user keeps pasting the
-  literal token instead. Each occurrence is a live credential exposed
-  in chat logs. Keep flagging it and recommending rotation after the
-  session; consider making the env-var option more prominent in the
-  README opening prompt.
+  Observed across multiple sessions. The opening prompt template
+  supports `$GH_PAT` env var reference, but the user keeps pasting
+  the literal token instead. Each occurrence is a live credential
+  exposed in chat logs. Keep flagging it and recommending rotation
+  after the session; consider making the env-var option more
+  prominent in the README opening prompt.
 
 ## Recently Completed
 _(Capped at 5 entries. Older items live in `decisions.md` and the
