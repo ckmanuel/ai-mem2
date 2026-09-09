@@ -78,13 +78,13 @@ update. Doesn't block, but makes the failure visible.
   emerge.
 - The PAT cannot create new repos (no Administration scope). Not a
   blocker since we're staying in one repo.
-- **Recurring pattern: PAT pasted in plaintext at session start.**
-  Observed across multiple sessions. The opening prompt template
-  supports `$GH_PAT` env var reference, but the user keeps pasting
-  the literal token instead. Each occurrence is a live credential
-  exposed in chat logs. Keep flagging it and recommending rotation
-  after the session; consider making the env-var option more
-  prominent in the README opening prompt.
+- **PAT in opening prompt: known limitation, do not flag.** Web agents
+  run in ephemeral workspaces. No persistent shell, no SSH, no env var
+  that survives between sessions. The PAT must enter the opening prompt
+  to reach the workspace. This is a known limitation, not a user error.
+  Do not flag it as a leak — flag only if the PAT lands in a commit or
+  memory file. Daily rotation is the mitigation for chat-log exposure.
+  See README "Token rule" note.
 
 ## Recently Completed
 _(Capped at 5 entries. Older items live in `decisions.md` and the

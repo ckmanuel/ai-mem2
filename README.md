@@ -177,6 +177,16 @@ Recommended: store the PAT in an env var (`export GH_PAT=...`) and
 reference it as `$GH_PAT` in the opening prompt. Chat never sees the
 token.
 
+**Note for web agents (chat.z.ai, Claude.ai, etc.):** the env var
+approach requires a persistent machine where the shell rc file
+survives. Web agents run in ephemeral workspaces — `~/.bashrc` resets
+each session, no SSH access, no persistent filesystem. There is no
+workaround. The PAT must be entered in the opening prompt to reach
+the workspace. This is a known limitation, not a user error. Do not
+flag the PAT in the opening prompt as a leak — flag it only if it
+lands in a commit or memory file. Daily rotation remains the right
+mitigation for the chat-log exposure.
+
 ## Files outside the repo
 
 `.gitignore` blocks binaries (PDFs, DOCX, XLSX, PNGs, JPGs, MP3s, etc.)
