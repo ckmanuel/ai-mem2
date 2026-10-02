@@ -1,0 +1,98 @@
+# Common dev artifacts that should never be committed to memory repo.
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+dist/
+build/
+out/
+.next/
+.nuxt/
+.turbo/
+.cache/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+env/
+.python-version
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Large binaries / media (case-by-case, force-add if needed)
+*.mp4
+*.mov
+*.zip
+*.tar.gz
+*.rar
+
+# Deliverables live outside git (e.g. your workspace download folder).
+# Memory repo holds text-based files only. Force-add with `git add -f`
+# only when a binary truly needs to be version-controlled here.
+*.pdf
+*.docx
+*.doc
+*.xlsx
+*.xls
+*.pptx
+*.ppt
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.webp
+*.bmp
+*.ico
+*.tiff
+*.heic
+*.psd
+*.ai
+*.sketch
+*.fig
+*.epub
+*.mobi
+*.azw
+*.azw3
+*.mp3
+*.wav
+*.flac
+*.aac
+*.ogg
+*.webm
+*.avi
+*.mkv
+*.sqlite
+*.db
+*.sqlite3
+*.accdb
+
+# Local-only working dirs
+.scratch/
+tmp/

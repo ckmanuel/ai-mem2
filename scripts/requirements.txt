@@ -1,0 +1,7 @@
+# Optional dependencies for scripts/embeddings.py
+# Install with: pip install -r scripts/requirements.txt
+#
+# First run of embeddings.py build downloads the all-MiniLM-L6-v2
+# model (~80MB) to ~/.cache/torch/sentence_transformers/.
+
+sentence-transformers>=2.2.0

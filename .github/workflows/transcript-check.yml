@@ -1,0 +1,29 @@
+name: Transcript check
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  check_transcript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Warn if memory files changed without a transcript
+        run: |
+          CHANGED=$(git diff --name-only HEAD^ HEAD || true)
+          if echo "$CHANGED" | grep -qE '^chat_history/[^/]+/.+\.md$'; then
+            echo "PASS: transcript updated."
+            exit 0
+          fi
+          MEMORY=$(echo "$CHANGED" | grep -E '^(preferences|knowledge|decisions|context|projects|lessons)\.md$' || true)
+          if [ -n "$MEMORY" ]; then
+            echo "WARN: memory files changed but no transcript was updated:"
+            echo "$MEMORY" | sed 's/^/  /'
+            echo "Backfill the transcript if this change came from a conversation."
+          else
+            echo "PASS: no memory files changed."
+          fi
+          exit 0

@@ -1,0 +1,29 @@
+name: Size check
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  check_sizes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Warn when memory files grow too large
+        run: |
+          check() {  # file, max_bytes, hint
+            [ -f "$1" ] || return 0
+            bytes=$(wc -c < "$1")
+            if [ "$bytes" -gt "$2" ]; then
+              echo "WARN: $1 is $bytes bytes (limit $2). $3"
+            else
+              echo "OK:   $1 ($bytes bytes)"
+            fi
+          }
+          check decisions.md   25600 "Archive the oldest entries to archive/."
+          check context.md     15360 "Trim Recently Completed to 5 entries."
+          check preferences.md 12800 "Trim or split sections."
+          check knowledge.md   12800 "Split into domain-specific files."
+          check lessons.md     25600 "Split by topic. Never archive lessons."
+          echo "Warnings never block a push."
+          exit 0
